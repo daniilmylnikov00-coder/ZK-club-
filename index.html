@@ -11,7 +11,9 @@
   <link rel="stylesheet" href="style.css?v=100">
 
   <style>
-    /* === ПАНЕЛЬ — встроена прямо здесь, чтобы точно работала === */
+    /* ============================================
+       LIQUID GLASS — нижняя панель (как в iOS)
+       ============================================ */
     .tabbar {
       position: fixed !important;
       left: 50% !important;
@@ -23,22 +25,52 @@
       justify-content: space-around !important;
       align-items: center !important;
       padding: 6px !important;
-      background: rgba(30, 30, 32, 0.85) !important;
-      -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
-      backdrop-filter: blur(30px) saturate(200%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      border-radius: 28px !important;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+
+      /* Стекло: полупрозрачный фон */
+      background: rgba(40, 40, 45, 0.42) !important;
+
+      /* Многослойный блюр + насыщенность (эффект iOS) */
+      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+      backdrop-filter: blur(40px) saturate(180%) !important;
+
+      /* Тонкая светящаяся граница */
+      border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+
+      /* Сильное скругление — «капсула» */
+      border-radius: 30px !important;
+
+      /* Внутренний блик сверху + глубокая тень снизу */
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+        0 12px 40px rgba(0, 0, 0, 0.55),
+        0 4px 12px rgba(0, 0, 0, 0.35) !important;
+
       z-index: 100 !important;
       list-style: none !important;
       text-decoration: none !important;
+
+      /* Плавное появление */
+      animation: glassIn 0.4s ease-out !important;
     }
 
+    @keyframes glassIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* Кнопки внутри панели */
     .tabbar .tab-btn {
       flex: 1 !important;
       background: none !important;
       border: none !important;
-      color: rgba(255, 255, 255, 0.55) !important;
+      color: rgba(255, 255, 255, 0.5) !important;
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
@@ -47,15 +79,20 @@
       cursor: pointer !important;
       font-family: inherit !important;
       font-size: 10px !important;
+      transition: color 0.25s ease !important;
     }
 
+    /* Иконка внутри кнопки */
     .tabbar .tab-btn .tab-icon {
-      width: 34px !important;
-      height: 28px !important;
+      width: 38px !important;
+      height: 30px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border-radius: 12px !important;
+      border-radius: 15px !important;
+      transition:
+        background 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
     }
 
     .tabbar .tab-btn svg {
@@ -64,24 +101,38 @@
       stroke: currentColor !important;
       stroke-width: 2 !important;
       fill: none !important;
+      transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.3s ease !important;
     }
 
     .tabbar .tab-btn span {
       font-size: 10px !important;
       font-weight: 600 !important;
       color: inherit !important;
+      letter-spacing: 0.1px !important;
     }
 
+    /* Активный — оранжевый, с пилюлей и свечением */
     .tabbar .tab-btn.active {
       color: #ff6b1a !important;
     }
 
     .tabbar .tab-btn.active .tab-icon {
-      background: rgba(255, 107, 26, 0.18) !important;
+      background: rgba(255, 107, 26, 0.22) !important;
+      transform: translateY(-1px) !important;
     }
 
     .tabbar .tab-btn.active svg {
-      filter: drop-shadow(0 0 10px rgba(255, 107, 26, 0.8)) !important;
+      filter:
+        drop-shadow(0 0 10px rgba(255, 107, 26, 0.9))
+        drop-shadow(0 0 20px rgba(255, 107, 26, 0.5)) !important;
+      transform: scale(1.08) !important;
+    }
+
+    /* При нажатии — «пружинка» */
+    .tabbar .tab-btn:active {
+      transform: scale(0.94) !important;
     }
   </style>
 
