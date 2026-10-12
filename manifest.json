@@ -1,0 +1,15 @@
+{
+  "name": "ZK club",
+  "short_name": "ZK club",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%230a0a0a'/%3E%3Ctext x='96' y='128' font-family='-apple-system,sans-serif' font-weight='800' font-size='80' fill='%23ff6b1a' text-anchor='middle'%3EZK%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
