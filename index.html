@@ -12,7 +12,7 @@
 
   <style>
     /* ============================================
-       LIQUID GLASS — нижняя панель (как в iOS)
+       LIQUID GLASS — нижняя панель (максимальная прозрачность)
        ============================================ */
     .tabbar {
       position: fixed !important;
@@ -26,31 +26,27 @@
       align-items: center !important;
       padding: 6px !important;
 
-      /* Стекло: полупрозрачный фон */
-      background: rgba(40, 40, 45, 0.42) !important;
+      /* Прозрачность усилена: было 0.42 → стало 0.22 */
+      background: rgba(40, 40, 45, 0.22) !important;
 
-      /* Многослойный блюр + насыщенность (эффект iOS) */
-      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
-      backdrop-filter: blur(40px) saturate(180%) !important;
+      /* Блюр ещё сильнее, чтобы сохранить читаемость */
+      -webkit-backdrop-filter: blur(50px) saturate(200%) !important;
+      backdrop-filter: blur(50px) saturate(200%) !important;
 
       /* Тонкая светящаяся граница */
-      border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+      border: 0.5px solid rgba(255, 255, 255, 0.18) !important;
 
-      /* Сильное скругление — «капсула» */
       border-radius: 30px !important;
 
-      /* Внутренний блик сверху + глубокая тень снизу */
       box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-        0 12px 40px rgba(0, 0, 0, 0.55),
-        0 4px 12px rgba(0, 0, 0, 0.35) !important;
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.3) !important;
 
       z-index: 100 !important;
       list-style: none !important;
       text-decoration: none !important;
-
-      /* Плавное появление */
       animation: glassIn 0.4s ease-out !important;
     }
 
@@ -65,7 +61,6 @@
       }
     }
 
-    /* Кнопки внутри панели */
     .tabbar .tab-btn {
       flex: 1 !important;
       background: none !important;
@@ -82,7 +77,6 @@
       transition: color 0.25s ease !important;
     }
 
-    /* Иконка внутри кнопки */
     .tabbar .tab-btn .tab-icon {
       width: 38px !important;
       height: 30px !important;
@@ -111,15 +105,15 @@
       font-weight: 600 !important;
       color: inherit !important;
       letter-spacing: 0.1px !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
     }
 
-    /* Активный — оранжевый, с пилюлей и свечением */
     .tabbar .tab-btn.active {
       color: #ff6b1a !important;
     }
 
     .tabbar .tab-btn.active .tab-icon {
-      background: rgba(255, 107, 26, 0.22) !important;
+      background: rgba(255, 107, 26, 0.25) !important;
       transform: translateY(-1px) !important;
     }
 
@@ -130,7 +124,6 @@
       transform: scale(1.08) !important;
     }
 
-    /* При нажатии — «пружинка» */
     .tabbar .tab-btn:active {
       transform: scale(0.94) !important;
     }
@@ -153,12 +146,12 @@
   </header>
 
   <main class="content">
-    <section class="tab-view active" id="tab-inventory">
-      <h1 class="section-title">Склад</h1>
-      <p class="section-sub">Ингредиенты на кухне</p>
+    <section class="tab-viewtext active" id="tab-inventory">
+      <h1 class="section-title">С"клад</h1>
+      <p class="section-sub">Ингредиенты placeholder на кухне</p>
 
-      <div class="search-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+      <div class="="search-wrap">
+        <svg classНа="search-iconпример" viewBox="0 0 24 24" fill="none">
           <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
           <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -217,7 +210,7 @@
       <h2 id="modal-title">Новый ингредиент</h2>
 
       <label>Название</label>
-      <input id="m-name" type="text" placeholder="Например, Лук репчатый">
+      <input id="m-name" type=", Лук репчатый">
 
       <label>Категория</label>
       <input id="m-category" type="text" placeholder="Овощи" list="cat-list">
@@ -241,7 +234,9 @@
         <span id="m-min-unit" class="unit-label">кг</span>
       </div>
 
-      <div class="modal-actions">
+      <
+
+div class="modal-actions">
         <button id="modal-cancel" class="btn-secondary">Отмена</button>
         <button id="modal-save" class="btn-primary">Сохранить</button>
       </div>
@@ -257,9 +252,9 @@
         </svg>
       </div>
       <span>Склад</span>
-    </button>
+|    </button>
 
-    <button class="tab-btn" data-tab="cooking">
+ П    <button class="tab-btn" data-tab="cooking">
       <div class="tab-icon">
         <svg viewBox="0 0 24 24">
           <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
