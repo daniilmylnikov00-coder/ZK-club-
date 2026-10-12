@@ -8,12 +8,87 @@
   <meta name="apple-mobile-web-app-title" content="ZK club КУХНЯ">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css?v=99">
+  <link rel="stylesheet" href="style.css?v=100">
+
+  <style>
+    /* === ПАНЕЛЬ — встроена прямо здесь, чтобы точно работала === */
+    .tabbar {
+      position: fixed !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      bottom: calc(4px + env(safe-area-inset-bottom)) !important;
+      width: calc(100% - 24px) !important;
+      max-width: 480px !important;
+      display: flex !important;
+      justify-content: space-around !important;
+      align-items: center !important;
+      padding: 6px !important;
+      background: rgba(30, 30, 32, 0.85) !important;
+      -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+      backdrop-filter: blur(30px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 28px !important;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+      z-index: 100 !important;
+      list-style: none !important;
+      text-decoration: none !important;
+    }
+
+    .tabbar .tab-btn {
+      flex: 1 !important;
+      background: none !important;
+      border: none !important;
+      color: rgba(255, 255, 255, 0.55) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 2px !important;
+      padding: 6px 0 5px !important;
+      cursor: pointer !important;
+      font-family: inherit !important;
+      font-size: 10px !important;
+    }
+
+    .tabbar .tab-btn .tab-icon {
+      width: 34px !important;
+      height: 28px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 12px !important;
+    }
+
+    .tabbar .tab-btn svg {
+      width: 21px !important;
+      height: 21px !important;
+      stroke: currentColor !important;
+      stroke-width: 2 !important;
+      fill: none !important;
+    }
+
+    .tabbar .tab-btn span {
+      font-size: 10px !important;
+      font-weight: 600 !important;
+      color: inherit !important;
+    }
+
+    .tabbar .tab-btn.active {
+      color: #ff6b1a !important;
+    }
+
+    .tabbar .tab-btn.active .tab-icon {
+      background: rgba(255, 107, 26, 0.18) !important;
+    }
+
+    .tabbar .tab-btn.active svg {
+      filter: drop-shadow(0 0 10px rgba(255, 107, 26, 0.8)) !important;
+    }
+  </style>
+
   <title>ZK club КУХНЯ</title>
 </head>
 <body>
 
-  <!-- Шапка -->
   <header class="topbar">
     <div class="logo">
       ZK<span>club</span><b class="logo-divider">|</b><b class="logo-sub">КУХНЯ</b>
@@ -26,7 +101,6 @@
     </button>
   </header>
 
-  <!-- Контент разделов -->
   <main class="content">
     <section class="tab-view active" id="tab-inventory">
       <h1 class="section-title">Склад</h1>
@@ -80,14 +154,12 @@
     </section>
   </main>
 
-  <!-- Кнопка "добавить ингредиент" -->
   <button id="add-btn" class="fab" aria-label="Добавить ингредиент">
     <svg viewBox="0 0 24 24" fill="none">
       <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
   </button>
 
-  <!-- Модалка: добавить/редактировать ингредиент -->
   <div id="modal" class="modal hidden">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
@@ -125,11 +197,10 @@
     </div>
   </div>
 
-  <!-- Нижняя навигация -->
   <nav class="tabbar">
     <button class="tab-btn active" data-tab="inventory">
       <div class="tab-icon">
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24">
           <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
           <path d="M3 7l9 4 9-4M12 11v10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
         </svg>
@@ -139,7 +210,7 @@
 
     <button class="tab-btn" data-tab="cooking">
       <div class="tab-icon">
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24">
           <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
@@ -148,7 +219,7 @@
 
     <button class="tab-btn" data-tab="techcards">
       <div class="tab-icon">
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24">
           <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
           <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -158,7 +229,7 @@
 
     <button class="tab-btn" data-tab="comments">
       <div class="tab-icon">
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24">
           <path d="M21 12a8 8 0 01-11.6 7.1L4 21l1.9-5.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
         </svg>
       </div>
@@ -167,7 +238,7 @@
 
     <button class="tab-btn" data-tab="shift">
       <div class="tab-icon">
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24">
           <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
