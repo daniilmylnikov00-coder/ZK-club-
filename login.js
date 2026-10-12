@@ -41,58 +41,83 @@ function updateCodeDots() {
   dots.forEach((dot, i) => {
     dot.classList.toggle('filled', i < enteredCode.length);
   });
+}
+
+function showLoginError(msg) {
   const errEl = document.getElementById('login-error');
-  if (errEl) errEl.textContent = '';
+  if (errEl) errEl.textContent = msg;
 }
 
 async function checkCode(code) {
   isChecking = true;
-  const errEl = document.getElementById('login-error');
+  showLoginError('Проверка...');
+
+  // Проверяем, что db вообще существует
+  if (!window.db) {
+    showLoginError('Нет подключения к базе');
+    isChecking = false;
+    enteredCode = '';
+    updateCodeDots();
+    return;
+  }
+
   try {
     const { data, error } = await window.db
       .from('users')
       .select('*')
-      .eq('code', code)
-      .single();
+      .eq('code', code);
 
-    if (error || !data) {
-      errEl.textContent = 'Неверный код';
+    // Показываем сырой ответ для отладки
+    if (error) {
+      showLoginError('Ошибка: ' + error.message);
+      isChecking = false;
       enteredCode = '';
       updateCodeDots();
-      // тряска
-      const box = document.querySelector('.code-box');
-      box.classList.add('shake');
-      setTimeout(() => box.classList.remove('shake'), 400);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      showLoginError('Код не найден в базе');
+      enteredCode = '';
+      updateCodeDots();
+      shakeCodeBox();
       isChecking = false;
       return;
     }
 
-    // Успешно — сохраняем сессию
+    // Нашли
+    const user = data[0];
     saveUserSession({
-      id: data.id,
-      name: data.name,
-      role: data.role,
-      code: data.code
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      code: user.code
     });
 
-    // Запускаем приложение
     if (typeof window.onLoginSuccess === 'function') {
       window.onLoginSuccess();
     }
   } catch (e) {
-    errEl.textContent = 'Ошибка сети';
+    showLoginError('Исключение: ' + (e.message || 'неизвестно'));
     enteredCode = '';
     updateCodeDots();
     isChecking = false;
   }
 }
 
-// ============ Обработка клавиатуры ============
+function shakeCodeBox() {
+  const box = document.querySelector('.code-box');
+  if (!box) return;
+  box.classList.add('shake');
+  setTimeout(() => box.classList.remove('shake'), 400);
+}
+
 function pressDigit(d) {
   if (isChecking) return;
   if (enteredCode.length >= 4) return;
   enteredCode += d;
   updateCodeDots();
+  showLoginError('');
 
   if (enteredCode.length === 4) {
     setTimeout(() => checkCode(enteredCode), 150);
@@ -106,7 +131,6 @@ function pressBackspace() {
   updateCodeDots();
 }
 
-// ============ Инициализация экрана входа ============
 function initLoginScreen() {
   const pad = document.getElementById('pin-pad');
   if (!pad) return;
@@ -118,23 +142,15 @@ function initLoginScreen() {
     const digit = btn.dataset.digit;
     const action = btn.dataset.action;
 
-    if (digit !== undefined) {
-      pressDigit(digit);
-    } else if (action === 'back') {
-      pressBackspace();
-    }
+    if (digit !== undefined) pressDigit(digit);
+    else if (action === 'back') pressBackspace();
   });
 
-  // Физическая клавиатура (для тестов на ПК)
   document.addEventListener('keydown', (e) => {
     const loginScreen = document.getElementById('login-screen');
     if (!loginScreen || loginScreen.classList.contains('hidden')) return;
-
-    if (e.key >= '0' && e.key <= '9') {
-      pressDigit(e.key);
-    } else if (e.key === 'Backspace') {
-      pressBackspace();
-    }
+    if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
+    else if (e.key === 'Backspace') pressBackspace();
   });
 
   updateCodeDots();
