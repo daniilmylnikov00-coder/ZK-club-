@@ -1,108 +1,91 @@
 // ============================================
-//  ХРАНИЛИЩЕ
-//  Пока локально (localStorage на этом телефоне).
-//  Позже заменим на Supabase — общий склад для всех.
+//  ПОДКЛЮЧЕНИЕ К SUPABASE
 // ============================================
-const STORAGE_KEY = 'zk_ingredients_v2';
+const { createClient } = supabase;
+window.db = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-// Каждая позиция:
-//   id       — уникальный идентификатор
-//   name     — название
-//   category — категория
-//   quantity — количество (храним в БАЗОВЫХ единицах: г, мл, шт)
-//   unit     — "g" | "kg" | "ml" | "l" | "pcs" (что показываем)
-//   min      — порог «мало осталось» (в базовых единицах)
-
-const DEFAULT_INGREDIENTS = [
-  // ——— Мясо и птица ———
-  { id: 'm1',  name: 'Куриное филе',            category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm2',  name: 'Курица для пасты',        category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm3',  name: 'Говядина для жаркого',    category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm4',  name: 'Говядина для удона',      category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm5',  name: 'Сосиски курица',          category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm6',  name: 'Сосиски говядина',        category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm7',  name: 'Наггетсы',                category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm8',  name: 'Бекон',                   category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-  { id: 'm9',  name: 'Куриные крылья',          category: 'Мясо и птица', quantity: 0, min: 0, unit: 'kg' },
-
-  // ——— Морепродукты ———
-  { id: 's1',  name: 'Креветки',                category: 'Морепродукты', quantity: 0, min: 0, unit: 'kg' },
-  { id: 's2',  name: 'Креветки темпура',        category: 'Морепродукты', quantity: 0, min: 0, unit: 'kg' },
-
-  // ——— Гарниры и заморозка ———
-  { id: 'g1',  name: 'Удон',                    category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-  { id: 'g2',  name: 'Спагетти',                category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-  { id: 'g3',  name: 'Феттучини',               category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-  { id: 'g4',  name: 'Сырные палочки',          category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-  { id: 'g5',  name: 'Картошка фри',            category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-  { id: 'g6',  name: 'Батат фри',               category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-  { id: 'g7',  name: 'Дольки картофельные',     category: 'Гарниры',      quantity: 0, min: 0, unit: 'kg' },
-
-  // ——— Овощи ———
-  { id: 'v1',  name: 'Помидоры',                category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v2',  name: 'Огурцы',                  category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v3',  name: 'Болгарский перец',        category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v4',  name: 'Шампиньоны',              category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v5',  name: 'Помидоры черри',          category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v6',  name: 'Лук',                     category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v7',  name: 'Морковь',                 category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v8',  name: 'Салат',                   category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'v9',  name: 'Картофель',               category: 'Овощи',        quantity: 0, min: 0, unit: 'kg' },
-
-  // ——— Сыры ———
-  { id: 'c1',  name: 'Чеддер',                  category: 'Сыры',         quantity: 0, min: 0, unit: 'kg' },
-  { id: 'c2',  name: 'Пармезан',                category: 'Сыры',         quantity: 0, min: 0, unit: 'kg' },
-  { id: 'c3',  name: 'Плавленый сыр',           category: 'Сыры',         quantity: 0, min: 0, unit: 'kg' },
-
-  // ——— Соусы ———
-  { id: 'sc1', name: 'Соус сырный',             category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'sc2', name: 'Соус цезарь',             category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'sc3', name: 'Соус горчица',            category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'sc4', name: 'Соус красный',            category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'sc5', name: 'Соус гриль',              category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'sc6', name: 'Соус барбекю',            category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-  { id: 'sc7', name: 'Соус унаги',              category: 'Соусы',        quantity: 0, min: 0, unit: 'kg' },
-
-  // ——— Хлеб ———
-  { id: 'b1',  name: 'Тостовый хлеб',           category: 'Хлеб',         quantity: 0, min: 0, unit: 'pcs' }
-];
-
+// ============================================
+//  СОСТОЯНИЕ
+// ============================================
 let ingredients = [];
-
-// ---------- Загрузка / сохранение ----------
-function loadIngredients() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      ingredients = JSON.parse(raw);
-    } else {
-      ingredients = DEFAULT_INGREDIENTS.map(i => ({ ...i }));
-      saveIngredients();
-    }
-  } catch (e) {
-    ingredients = DEFAULT_INGREDIENTS.map(i => ({ ...i }));
-  }
-}
-
-function saveIngredients() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ingredients));
-  } catch (e) {
-    console.error('Не удалось сохранить', e);
-  }
-}
+let currentUser = null;
+let filterText = '';
+let syncTimer = null;
+let isRendering = false;
 
 // ============================================
-//  ОТОБРАЖЕНИЕ
+//  DOM
 // ============================================
 const listEl   = document.getElementById('ingredients-list');
 const searchEl = document.getElementById('search-input');
 const addBtn   = document.getElementById('add-btn');
 const modal    = document.getElementById('modal');
 
-let filterText = '';
+// ============================================
+//  ЗАГРУЗКА ИЗ SUPABASE
+// ============================================
+async function loadFromServer() {
+  try {
+    const { data, error } = await window.db
+      .from('ingredients')
+      .select('*')
+      .order('category', { ascending: true })
+      .order('name', { ascending: true });
 
-// Показать количество в удобной единице
+    if (error) {
+      console.error('Ошибка загрузки:', error);
+      return;
+    }
+    ingredients = data || [];
+    render();
+  } catch (e) {
+    console.error('Ошибка сети:', e);
+  }
+}
+
+// ============================================
+//  СОХРАНЕНИЕ ИНГРЕДИЕНТА
+// ============================================
+async function saveIngredient(item) {
+  const payload = {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    quantity: item.quantity,
+    unit: item.unit,
+    min_qty: item.min_qty,
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await window.db
+    .from('ingredients')
+    .upsert(payload, { onConflict: 'id' });
+
+  if (error) console.error('Ошибка сохранения:', error);
+}
+
+// Обновление одного поля
+async function updateIngredientField(id, field, value) {
+  const update = { updated_at: new Date().toISOString() };
+  update[field] = value;
+
+  const { error } = await window.db
+    .from('ingredients')
+    .update(update)
+    .eq('id', id);
+
+  if (error) console.error('Ошибка обновления:', error);
+}
+
+// ============================================
+//  ОТОБРАЖЕНИЕ
+// ============================================
+function niceNum(n) {
+  if (n === 0) return '0';
+  const rounded = Math.round(n * 1000) / 1000;
+  return rounded.toString().replace('.', ',');
+}
+
 function displayQty(item) {
   const q = item.quantity;
   if (item.unit === 'kg')  return niceNum(q / 1000) + ' кг';
@@ -112,12 +95,6 @@ function displayQty(item) {
   return niceNum(q) + ' г';
 }
 
-function niceNum(n) {
-  if (n === 0) return '0';
-  const rounded = Math.round(n * 1000) / 1000;
-  return rounded.toString().replace('.', ',');
-}
-
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -125,14 +102,16 @@ function escapeHtml(str) {
 }
 
 function render() {
+  if (isRendering) return;
+  isRendering = true;
+
   const filtered = ingredients.filter(i =>
     i.name.toLowerCase().includes(filterText)
   );
 
-  // Сортировка: сначала те, где мало осталось, потом по категории, потом по имени
   filtered.sort((a, b) => {
-    const aLow = a.min > 0 && a.quantity <= a.min;
-    const bLow = b.min > 0 && b.quantity <= b.min;
+    const aLow = a.min_qty > 0 && a.quantity <= a.min_qty;
+    const bLow = b.min_qty > 0 && b.quantity <= b.min_qty;
     if (aLow !== bLow) return aLow ? -1 : 1;
     if (a.category !== b.category) return a.category.localeCompare(b.category, 'ru');
     return a.name.localeCompare(b.name, 'ru');
@@ -140,11 +119,12 @@ function render() {
 
   if (filtered.length === 0) {
     listEl.innerHTML = '<div class="empty-state">Ничего не найдено</div>';
+    isRendering = false;
     return;
   }
 
   listEl.innerHTML = filtered.map(item => {
-    const isLow = item.min > 0 && item.quantity <= item.min;
+    const isLow = item.min_qty > 0 && item.quantity <= item.min_qty;
     return `
       <div class="ingredient-card${isLow ? ' low' : ''}" data-id="${item.id}">
         <div class="ingredient-info">
@@ -171,20 +151,24 @@ function render() {
       </div>
     `;
   }).join('');
+
+  isRendering = false;
 }
 
 // ============================================
-//  СОБЫТИЯ
+//  СОБЫТИЯ СПИСКА
 // ============================================
 
 // Поиск
-searchEl.addEventListener('input', e => {
-  filterText = e.target.value.toLowerCase().trim();
-  render();
-});
+if (searchEl) {
+  searchEl.addEventListener('input', e => {
+    filterText = e.target.value.toLowerCase().trim();
+    render();
+  });
+}
 
-// Ввод количества — сохраняем при потере фокуса или Enter
-listEl.addEventListener('change', e => {
+// Изменение количества / единицы
+listEl.addEventListener('change', async e => {
   const input = e.target.closest('.qty-input');
   const select = e.target.closest('.unit-select');
 
@@ -196,14 +180,15 @@ listEl.addEventListener('change', e => {
     const raw = input.value.replace(',', '.').replace(/[^\d.\-]/g, '');
     const num = parseFloat(raw) || 0;
 
-    // Сохраняем в базовых единицах
+    let baseQty;
     if (item.unit === 'kg' || item.unit === 'l') {
-      item.quantity = num * 1000;
+      baseQty = num * 1000;
     } else {
-      item.quantity = num;
+      baseQty = num;
     }
 
-    saveIngredients();
+    item.quantity = baseQty;
+    await updateIngredientField(id, 'quantity', baseQty);
     render();
   }
 
@@ -212,33 +197,34 @@ listEl.addEventListener('change', e => {
     const item = ingredients.find(i => i.id === id);
     if (!item) return;
     item.unit = select.value;
-    saveIngredients();
+    await updateIngredientField(id, 'unit', select.value);
     render();
   }
 });
 
-// Enter — убрать фокус (закрывает клавиатуру)
+// Enter — закрыть клавиатуру
 listEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.closest('.qty-input')) {
     e.target.blur();
   }
 });
 
-// FAB → добавить новый ингредиент
-addBtn.addEventListener('click', () => openEdit(null));
+// FAB → добавить
+if (addBtn) {
+  addBtn.addEventListener('click', () => openEdit(null));
+}
 
-// Долгое нажатие на карточку (кроме полей ввода) — редактировать
+// Долгое нажатие — редактировать
 listEl.addEventListener('contextmenu', e => {
   const card = e.target.closest('.ingredient-card');
   if (!card) return;
-  // Если тап по полю ввода — не открываем
   if (e.target.closest('.qty-input-wrap')) return;
   e.preventDefault();
   openEdit(card.dataset.id);
 });
 
 // ============================================
-//  МОДАЛКА (создание / редактирование)
+//  МОДАЛКА
 // ============================================
 const modalTitle = document.getElementById('modal-title');
 const mName     = document.getElementById('m-name');
@@ -261,8 +247,9 @@ function openEdit(id) {
   mUnit.value = item ? item.unit : 'kg';
 
   if (item) {
-    const q = (item.unit === 'kg' || item.unit === 'l') ? item.quantity / 1000 : item.quantity;
-    const mn = (item.unit === 'kg' || item.unit === 'l') ? item.min / 1000 : item.min;
+    const isBig = (item.unit === 'kg' || item.unit === 'l');
+    const q = isBig ? item.quantity / 1000 : item.quantity;
+    const mn = isBig ? item.min_qty / 1000 : item.min_qty;
     mQuantity.value = round3(q);
     mMin.value = round3(mn);
   } else {
@@ -277,67 +264,61 @@ function openEdit(id) {
   modal.classList.remove('hidden');
 }
 
-function round3(n) {
-  return Math.round(n * 1000) / 1000;
-}
+function round3(n) { return Math.round(n * 1000) / 1000; }
 
 function updateMinUnitLabel() {
-  const u = mUnit.value;
   const map = { g: 'г', kg: 'кг', ml: 'мл', l: 'л', pcs: 'шт' };
-  mMinUnit.textContent = map[u] || 'г';
+  mMinUnit.textContent = map[mUnit.value] || 'г';
 }
 
-mUnit.addEventListener('change', updateMinUnitLabel);
+if (mUnit) mUnit.addEventListener('change', updateMinUnitLabel);
 
-document.getElementById('modal-cancel').addEventListener('click', () => {
+document.getElementById('modal-cancel')?.addEventListener('click', () => {
   modal.classList.add('hidden');
   editingId = null;
 });
 
-document.getElementById('modal-save').addEventListener('click', () => {
+document.getElementById('modal-save')?.addEventListener('click', async () => {
   const name     = mName.value.trim();
   const category = mCategory.value.trim() || 'Прочее';
   const qty      = parseFloat(mQuantity.value) || 0;
   const min      = parseFloat(mMin.value) || 0;
   const unit     = mUnit.value;
 
-  if (!name) {
-    alert('Введите название');
-    return;
-  }
+  if (!name) { alert('Введите название'); return; }
 
   const isBig = (unit === 'kg' || unit === 'l');
   const qtyBase = isBig ? qty * 1000 : qty;
   const minBase = isBig ? min * 1000 : min;
 
+  let item;
   if (editingId) {
-    const item = ingredients.find(i => i.id === editingId);
+    item = ingredients.find(i => i.id === editingId);
     if (item) {
       item.name = name;
       item.category = category;
       item.quantity = qtyBase;
-      item.min = minBase;
+      item.min_qty = minBase;
       item.unit = unit;
     }
   } else {
-    ingredients.push({
+    item = {
       id: Date.now().toString(),
-      name,
-      category,
+      name, category,
       quantity: qtyBase,
-      min: minBase,
+      min_qty: minBase,
       unit
-    });
+    };
+    ingredients.push(item);
   }
 
-  saveIngredients();
+  await saveIngredient(item);
   render();
   modal.classList.add('hidden');
   editingId = null;
 });
 
-// Закрытие тапом по затемнению
-modal.addEventListener('click', e => {
+modal?.addEventListener('click', e => {
   if (e.target === modal) {
     modal.classList.add('hidden');
     editingId = null;
@@ -345,36 +326,67 @@ modal.addEventListener('click', e => {
 });
 
 // ============================================
-//  ПЕРЕКЛЮЧЕНИЕ ТАБОВ
+//  ТАБЫ
 // ============================================
-const fab = document.getElementById('add-btn');
-
 function updateFabVisibility(tab) {
-  if (tab === 'inventory') {
-    fab.classList.remove('hidden');
-  } else {
-    fab.classList.add('hidden');
-  }
+  if (!addBtn) return;
+  if (tab === 'inventory') addBtn.classList.remove('hidden');
+  else addBtn.classList.add('hidden');
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
-
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
     document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
-
     document.querySelector('.content').scrollTop = 0;
     updateFabVisibility(tab);
   });
 });
 
 // ============================================
-//  СТАРТ
+//  АВТОСИНХРОНИЗАЦИЯ (каждые 3 секунды)
 // ============================================
-loadIngredients();
-render();
-updateFabVisibility('inventory');
+function startAutoSync() {
+  if (syncTimer) clearInterval(syncTimer);
+  syncTimer = setInterval(loadFromServer, 3000);
+}
+
+// ============================================
+//  ВЫХОД
+// ============================================
+function logout() {
+  if (!confirm('Выйти из аккаунта?')) return;
+  clearUserSession();
+  currentUser = null;
+  location.reload();
+}
+
+// ============================================
+//  СТАРТ ПОСЛЕ ВХОДА
+// ============================================
+window.onLoginSuccess = async function() {
+  currentUser = getCurrentUser();
+
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.remove('hidden');
+
+  await loadFromServer();
+  updateFabVisibility('inventory');
+  startAutoSync();
+};
+
+// ============================================
+//  ИНИЦИАЛИЗАЦИЯ
+// ============================================
+(function init() {
+  if (isLoggedIn()) {
+    window.onLoginSuccess();
+  } else {
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('app-screen').classList.add('hidden');
+    initLoginScreen();
+  }
+})();
