@@ -30,7 +30,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  padding-top: env(safe-area-inset-top);
   background:
     radial-gradient(ellipse at top, rgba(255, 107, 26, 0.08), transparent 60%),
     linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
@@ -206,6 +205,12 @@ body {
   cursor: pointer;
 }
 
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
 /* Контент */
 .content {
   flex: 1;
@@ -259,10 +264,11 @@ body {
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  width: 18px !important;
+  height: 18px !important;
   color: var(--muted);
   pointer-events: none;
+  display: block;
 }
 
 #search-input {
@@ -542,8 +548,11 @@ body {
 .tab-btn svg {
   width: 21px;
   height: 21px;
+  max-width: 21px;
+  max-height: 21px;
   stroke: currentColor;
   stroke-width: 2;
+  fill: none;
 }
 
 .tab-btn span {
