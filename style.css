@@ -1,3 +1,6 @@
+/* ============================================
+   БАЗА
+   ============================================ */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -32,6 +35,124 @@ body {
     radial-gradient(ellipse at top, rgba(255, 107, 26, 0.08), transparent 60%),
     linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
 }
+
+/* ============================================
+   ЭКРАН ВХОДА
+   ============================================ */
+#login-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  height: 100dvh;
+  width: 100vw;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(30px + env(safe-area-inset-top)) 24px calc(30px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(ellipse at top, rgba(255, 107, 26, 0.15), transparent 60%),
+    linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
+  overflow: hidden;
+}
+#login-screen.hidden { display: none; }
+
+.login-logo {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--orange);
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(255, 107, 26, 0.4);
+}
+.login-logo .sub {
+  color: #fff;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 4px;
+  margin-left: 6px;
+}
+.login-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+
+.code-box {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  transition: transform 0.1s;
+}
+.code-box.shake { animation: shake 0.4s; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.code-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s;
+}
+.code-dot.filled {
+  background: var(--orange);
+  border-color: var(--orange);
+  box-shadow: 0 0 12px rgba(255, 107, 26, 0.7);
+}
+
+#login-error {
+  color: #dc2626;
+  font-size: 13px;
+  height: 20px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  text-align: center;
+  max-width: 320px;
+}
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 300px;
+}
+.pin-pad button {
+  height: 68px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pin-pad button:active {
+  background: rgba(255, 107, 26, 0.25);
+  border-color: rgba(255, 107, 26, 0.5);
+  transform: scale(0.95);
+}
+.pin-pad button[data-action="back"] {
+  font-size: 20px;
+  color: var(--orange);
+}
+
+/* ============================================
+   ОСНОВНОЕ ПРИЛОЖЕНИЕ
+   ============================================ */
+#app-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+}
+#app-screen.hidden { display: none; }
 
 /* Шапка */
 .topbar {
@@ -331,8 +452,7 @@ body {
 
 .modal-sheet select { width: auto; min-width: 80px; }
 
-.input-row;
- {
+.input-row {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -366,7 +486,7 @@ body {
 .btn-primary {
   background: var(--orange);
   color: #ffffff;
-   box-shadow background: 0: 6px 20px rgba(255 rgba, 107,( 26, 0.35);
+  box-shadow: 0 6px 20px rgba(255, 107, 26, 0.35);
 }
 
 .btn-secondary {
@@ -386,7 +506,8 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px30, 30, 32, 0.75);
+  padding: 6px;
+  background: rgba(30, 30, 32, 0.75);
   backdrop-filter: blur(30px) saturate(200%);
   -webkit-backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.1);
