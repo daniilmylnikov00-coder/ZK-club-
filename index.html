@@ -11,22 +11,34 @@
   <link rel="stylesheet" href="style.css?v=100">
 
   <style>
-    /* ===== ЭКРАН ВХОДА ===== */
+    /* ===== ЭКРАН ВХОДА — БЕЗ ПОЛОСКИ СНИЗУ ===== */
     #login-screen {
       position: fixed;
-      inset: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
+      height: 100dvh;
+      width: 100vw;
       z-index: 500;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 24px calc(40px + env(safe-area-inset-bottom));
+      padding: calc(30px + env(safe-area-inset-top)) 24px calc(30px + env(safe-area-inset-bottom));
       background:
         radial-gradient(ellipse at top, rgba(255, 107, 26, 0.15), transparent 60%),
         linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
-      padding-top: calc(40px + env(safe-area-inset-top));
+      overflow: hidden;
     }
     #login-screen.hidden { display: none; }
+
+    /* прячем серую полоску iOS внизу */
+    #login-screen::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: env(safe-area-inset-bottom);
+      background: #050505;
+      pointer-events: none;
+    }
 
     .login-logo {
       font-size: 34px;
@@ -54,9 +66,7 @@
       margin-bottom: 40px;
       transition: transform 0.1s;
     }
-    .code-box.shake {
-      animation: shake 0.4s;
-    }
+    .code-box.shake { animation: shake 0.4s; }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-8px); }
@@ -120,7 +130,6 @@
 </head>
 <body>
 
-  <!-- ============ ЭКРАН ВХОДА ============ -->
   <div id="login-screen" class="hidden">
     <div class="login-logo">ZK<span>club</span> <span class="sub">КУХНЯ</span></div>
     <div class="login-sub">Введите код доступа</div>
@@ -150,7 +159,6 @@
     </div>
   </div>
 
-  <!-- ============ ОСНОВНОЕ ПРИЛОЖЕНИЕ ============ -->
   <div id="app-screen" class="hidden" style="display:flex;flex-direction:column;height:100dvh;padding-top:env(safe-area-inset-top);">
 
     <header class="topbar">
