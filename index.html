@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="ZK club КУХНЯ">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <title>ZK club КУХНЯ</title>
 </head>
 <body>
@@ -77,43 +77,53 @@
   <!-- Нижняя навигация -->
   <nav class="tabbar">
     <button class="tab-btn active" data-tab="inventory">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        <path d="M3 7l9 4 9-4M12 11v10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M3 7l9 4 9-4M12 11v10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <span>Склад</span>
     </button>
 
     <button class="tab-btn" data-tab="cooking">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <span>Готовка</span>
     </button>
 
     <button class="tab-btn" data-tab="techcards">
-      <svg viewBox="0 0 24 24" fill="none">
-        <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-        <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
       <span>ТТК</span>
     </button>
 
     <button class="tab-btn" data-tab="comments">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M21 12a8 8 0 01-11.6 7.1L4 21l1.9-5.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M21 12a8 8 0 01-11.6 7.1L4 21l1.9-5.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <span>Чат</span>
     </button>
 
     <button class="tab-btn" data-tab="shift">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
       <span>Смена</span>
     </button>
   </nav>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
