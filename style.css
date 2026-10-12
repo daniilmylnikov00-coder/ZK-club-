@@ -7,9 +7,7 @@
 
 :root {
   --orange: #ff6b1a;
-  --orange-soft: rgba(255, 107, 26, 0.15);
   --bg-1: #0a0a0a;
-  --bg-2: #1a1a1a;
   --text: #ffffff;
   --muted: #8a8a8a;
   --card: rgba(255, 255, 255, 0.05);
@@ -35,7 +33,7 @@ body {
     linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
 }
 
-/* ======= Шапка ======= */
+/* Шапка */
 .topbar {
   display: flex;
   align-items: center;
@@ -47,14 +45,12 @@ body {
 .logo {
   font-size: 26px;
   font-weight: 800;
-  letter-spacing: -0.5px;
   color: var(--orange);
   text-shadow: 0 0 24px rgba(255, 107, 26, 0.35);
   line-height: 1;
 }
 
 .logo span {
-  color: var(--orange);
   opacity: 0.65;
   font-weight: 600;
   margin-left: 4px;
@@ -87,15 +83,9 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: background 0.15s;
 }
 
-.icon-btn:active {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* ======= Контент ======= */
+/* Контент */
 .content {
   flex: 1;
   overflow-y: auto;
@@ -103,24 +93,12 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-.tab-view {
-  display: none;
-  animation: fadeIn 0.25s ease;
-}
-
-.tab-view.active {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.tab-view { display: none; }
+.tab-view.active { display: block; }
 
 .section-title {
   font-size: 32px;
   font-weight: 800;
-  letter-spacing: -0.8px;
   margin-bottom: 6px;
 }
 
@@ -137,22 +115,19 @@ body {
   border-radius: 20px;
   padding: 48px 20px;
   text-align: center;
-  backdrop-filter: blur(10px);
 }
 
 .placeholder-icon {
   font-size: 48px;
   margin-bottom: 12px;
-  opacity: 0.9;
 }
 
 .placeholder-text {
   font-size: 14px;
   color: var(--muted);
-  font-weight: 500;
 }
 
-/* ======= Поиск ======= */
+/* Поиск */
 .search-wrap {
   position: relative;
   margin-bottom: 16px;
@@ -179,20 +154,13 @@ body {
   color: var(--text);
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s;
   -webkit-appearance: none;
   appearance: none;
 }
 
-#search-input::placeholder {
-  color: var(--muted);
-}
+#search-input::placeholder { color: var(--muted); }
 
-#search-input:focus {
-  border-color: rgba(255, 107, 26, 0.5);
-}
-
-/* ======= Список ингредиентов ======= */
+/* Список */
 .ingredients-list {
   display: flex;
   flex-direction: column;
@@ -207,8 +175,6 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 12px 14px;
-  backdrop-filter: blur(10px);
-  transition: border-color 0.2s;
 }
 
 .ingredient-card.low {
@@ -216,15 +182,11 @@ body {
   background: rgba(220, 38, 38, 0.06);
 }
 
-.ingredient-info {
-  flex: 1;
-  min-width: 0;
-}
+.ingredient-info { flex: 1; min-width: 0; }
 
 .ingredient-name {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text);
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -257,18 +219,10 @@ body {
   outline: none;
   -webkit-appearance: none;
   appearance: none;
-  transition: border-color 0.2s, background 0.2s;
 }
 
-.qty-input:focus {
-  border-color: rgba(255, 107, 26, 0.6);
-  background: rgba(255, 107, 26, 0.08);
-}
-
-.qty-input.low {
-  color: #dc2626;
-  border-color: rgba(220, 38, 38, 0.4);
-}
+.qty-input:focus { border-color: rgba(255, 107, 26, 0.6); }
+.qty-input.low { color: #dc2626; }
 
 .unit-select {
   padding: 8px 6px;
@@ -285,10 +239,6 @@ body {
   cursor: pointer;
 }
 
-.unit-select:focus {
-  border-color: rgba(255, 107, 26, 0.6);
-}
-
 .empty-state {
   text-align: center;
   padding: 48px 20px;
@@ -296,7 +246,7 @@ body {
   font-size: 14px;
 }
 
-/* ======= FAB (кнопка +) ======= */
+/* Кнопка + */
 .fab {
   position: fixed;
   right: 20px;
@@ -313,42 +263,22 @@ body {
   justify-content: center;
   box-shadow: 0 8px 24px rgba(255, 107, 26, 0.45);
   z-index: 90;
-  transition: transform 0.15s;
 }
 
-.fab svg {
-  width: 26px;
-  height: 26px;
-}
+.fab svg { width: 26px; height: 26px; }
+.fab.hidden { display: none; }
 
-.fab:active {
-  transform: scale(0.92);
-}
-
-.fab.hidden {
-  display: none;
-}
-
-/* ======= Модалка ======= */
+/* Модалка */
 .modal {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
   z-index: 200;
-  animation: modalFadeIn 0.2s ease;
 }
 
-.modal.hidden {
-  display: none;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+.modal.hidden { display: none; }
 
 .modal-sheet {
   width: 100%;
@@ -358,12 +288,6 @@ body {
   border-radius: 24px 24px 0 0;
   padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
-  animation: sheetUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes sheetUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
 }
 
 .modal-handle {
@@ -405,25 +329,16 @@ body {
   appearance: none;
 }
 
-.modal-sheet input:focus,
-.modal-sheet select:focus {
-  border-color: rgba(255, 107, 26, 0.5);
-}
+.modal-sheet select { width: auto; min-width: 80px; }
 
-.modal-sheet select {
-  width: auto;
-  min-width: 80px;
-}
-
-.input-row {
+.input-row;
+ {
   display: flex;
   gap: 8px;
   align-items: center;
 }
 
-.input-row input {
-  flex: 1;
-}
+.input-row input { flex: 1; }
 
 .unit-label {
   padding: 12px 16px;
@@ -437,8 +352,7 @@ body {
   margin-top: 24px;
 }
 
-.btn-primary,
-.btn-secondary {
+.btn-primary, .btn-secondary {
   flex: 1;
   padding: 14px;
   border-radius: 14px;
@@ -447,13 +361,12 @@ body {
   cursor: pointer;
   font-family: inherit;
   border: none;
-  transition: transform 0.1s;
 }
 
 .btn-primary {
   background: var(--orange);
   color: #ffffff;
-  box-shadow: 0 6px 20px rgba(255, 107, 26, 0.35);
+   box-shadow background: 0: 6px 20px rgba(255 rgba, 107,( 26, 0.35);
 }
 
 .btn-secondary {
@@ -462,12 +375,7 @@ body {
   border: 1px solid var(--border);
 }
 
-.btn-primary:active,
-.btn-secondary:active {
-  transform: scale(0.97);
-}
-
-/* ======= НИЖНЯЯ ПАНЕЛЬ ======= */
+/* ============ НИЖНЯЯ ПАНЕЛЬ ============ */
 .tabbar {
   position: fixed;
   left: 50%;
@@ -478,15 +386,12 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px;
-  background: rgba(30, 30, 32, 0.75);
+  padding: 6px30, 30, 32, 0.75);
   backdrop-filter: blur(30px) saturate(200%);
   -webkit-backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.6),
-    0 0 0 0.5px rgba(255, 255, 255, 0.06) inset;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
   z-index: 100;
 }
 
@@ -501,10 +406,7 @@ body {
   gap: 2px;
   padding: 6px 0 5px;
   cursor: pointer;
-  transition: color 0.2s;
   font-family: inherit;
-  border-radius: 22px;
-  position: relative;
 }
 
 .tab-icon {
@@ -514,43 +416,29 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  transition: background 0.25s, transform 0.25s;
 }
 
 .tab-btn svg {
   width: 21px;
   height: 21px;
   stroke: currentColor;
-  transition: transform 0.25s, filter 0.25s, stroke-width 0.25s;
   stroke-width: 2;
 }
 
 .tab-btn span {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.2px;
-  transition: color 0.2s;
 }
 
-.tab-btn.active {
-  color: var(--orange);
-}
+.tab-btn.active { color: var(--orange); }
 
 .tab-btn.active .tab-icon {
   background: rgba(255, 107, 26, 0.18);
-  transform: translateY(-1px);
 }
 
 .tab-btn.active svg {
   filter: drop-shadow(0 0 10px rgba(255, 107, 26, 0.8));
-  transform: scale(1.08);
-  stroke-width: 2.2;
 }
 
-.tab-btn:active {
-  transform: scale(0.94);
-}
-
-/* Скролл невидимый */
 .content::-webkit-scrollbar { display: none; }
 .content { scrollbar-width: none; }
