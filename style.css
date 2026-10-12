@@ -157,7 +157,7 @@ body {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(4px + env(safe-area-inset-bottom));
+  bottom: 0;
   width: calc(100% - 24px);
   max-width: 480px;
   display: flex;
