@@ -11,9 +11,7 @@
   <link rel="stylesheet" href="style.css?v=100">
 
   <style>
-    /* ============================================
-       LIQUID GLASS — нижняя панель (максимальная прозрачность)
-       ============================================ */
+    /* ПАНЕЛЬ — встроена, чтобы точно работала */
     .tabbar {
       position: fixed !important;
       left: 50% !important;
@@ -25,47 +23,21 @@
       justify-content: space-around !important;
       align-items: center !important;
       padding: 6px !important;
-
-      /* Прозрачность усилена: было 0.42 → стало 0.22 */
-      background: rgba(40, 40, 45, 0.22) !important;
-
-      /* Блюр ещё сильнее, чтобы сохранить читаемость */
-      -webkit-backdrop-filter: blur(50px) saturate(200%) !important;
-      backdrop-filter: blur(50px) saturate(200%) !important;
-
-      /* Тонкая светящаяся граница */
-      border: 0.5px solid rgba(255, 255, 255, 0.18) !important;
-
-      border-radius: 30px !important;
-
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.22),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-        0 12px 40px rgba(0, 0, 0, 0.5),
-        0 4px 12px rgba(0, 0, 0, 0.3) !important;
-
+      background: rgba(30, 30, 32, 0.75) !important;
+      -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+      backdrop-filter: blur(30px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 28px !important;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
       z-index: 100 !important;
       list-style: none !important;
-      text-decoration: none !important;
-      animation: glassIn 0.4s ease-out !important;
-    }
-
-    @keyframes glassIn {
-      from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
     }
 
     .tabbar .tab-btn {
       flex: 1 !important;
       background: none !important;
       border: none !important;
-      color: rgba(255, 255, 255, 0.5) !important;
+      color: rgba(255, 255, 255, 0.55) !important;
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
@@ -74,58 +46,43 @@
       cursor: pointer !important;
       font-family: inherit !important;
       font-size: 10px !important;
-      transition: color 0.25s ease !important;
     }
 
     .tabbar .tab-btn .tab-icon {
-      width: 38px !important;
-      height: 30px !important;
+      width: 34px !important;
+      height: 28px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border-radius: 15px !important;
-      transition:
-        background 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
+      border-radius: 12px !important;
     }
 
     .tabbar .tab-btn svg {
       width: 21px !important;
       height: 21px !important;
+      max-width: 21px !important;
+      max-height: 21px !important;
       stroke: currentColor !important;
       stroke-width: 2 !important;
       fill: none !important;
-      transition:
-        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-        filter 0.3s ease !important;
     }
 
     .tabbar .tab-btn span {
       font-size: 10px !important;
       font-weight: 600 !important;
       color: inherit !important;
-      letter-spacing: 0.1px !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
     }
 
     .tabbar .tab-btn.active {
       color: #ff6b1a !important;
     }
 
-    .tabbar .tab-btn.active .tab-icon {
-      background: rgba(255, 107, 26, 0.25) !important;
-      transform: translateY(-1px) !important;
+    .tabbar .tab-btn.active .tab-icon: {
+      background: rgba(255, 107, 26, 0.18) !important;
     }
 
     .tabbar .tab-btn.active svg {
-      filter:
-        drop-shadow(0 0 10px rgba(255, 107, 26, 0.9))
-        drop-shadow(0 0 20px rgba(255, 107, 26, 0.5)) !important;
-      transform: scale(1.08) !important;
-    }
-
-    .tabbar .tab-btn:active {
-      transform: scale(0.94) !important;
+      filter: drop-shadow(0 0 10px rgba(255, 107, 26, 0.8)) !important;
     }
   </style>
 
@@ -146,12 +103,12 @@
   </header>
 
   <main class="content">
-    <section class="tab-viewtext active" id="tab-inventory">
-      <h1 class="section-title">С"клад</h1>
-      <p class="section-sub">Ингредиенты placeholder на кухне</p>
+    <section class="tab-view active" id="tab-inventory">
+      <h1 class="section-title">Склад</h1>
+      <p class="section-sub">Ингредиенты на кухне</p>
 
-      <div class="="search-wrap">
-        <svg classНа="search-iconпример" viewBox="0 0 24 24" fill="none">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none">
           <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
           <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -210,7 +167,7 @@
       <h2 id="modal-title">Новый ингредиент</h2>
 
       <label>Название</label>
-      <input id="m-name" type=", Лук репчатый">
+      <input id="m-name" type="text" placeholder="Например, Лук репчатый">
 
       <label>Категория</label>
       <input id="m-category" type="text" placeholder="Овощи" list="cat-list">
@@ -234,9 +191,7 @@
         <span id="m-min-unit" class="unit-label">кг</span>
       </div>
 
-      <
-
-div class="modal-actions">
+      <div class="modal-actions">
         <button id="modal-cancel" class="btn-secondary">Отмена</button>
         <button id="modal-save" class="btn-primary">Сохранить</button>
       </div>
@@ -252,9 +207,9 @@ div class="modal-actions">
         </svg>
       </div>
       <span>Склад</span>
-|    </button>
+    </button>
 
- П    <button class="tab-btn" data-tab="cooking">
+    <button class="tab-btn" data-tab="cooking">
       <div class="tab-icon">
         <svg viewBox="0 0 24 24">
           <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
