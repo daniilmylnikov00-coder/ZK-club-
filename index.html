@@ -11,78 +11,108 @@
   <link rel="stylesheet" href="style.css?v=100">
 
   <style>
-    /* ПАНЕЛЬ — встроена, чтобы точно работала */
-    .tabbar {
-      position: fixed !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      bottom: calc(4px + env(safe-area-inset-bottom)) !important;
-      width: calc(100% - 24px) !important;
-      max-width: 480px !important;
-      display: flex !important;
-      justify-content: space-around !important;
-      align-items: center !important;
-      padding: 6px !important;
-      background: rgba(30, 30, 32, 0.75) !important;
-      -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
-      backdrop-filter: blur(30px) saturate(180%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      border-radius: 28px !important;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
-      z-index: 100 !important;
-      list-style: none !important;
+    /* ===== ЭКРАН ВХОДА ===== */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px calc(40px + env(safe-area-inset-bottom));
+      background:
+        radial-gradient(ellipse at top, rgba(255, 107, 26, 0.15), transparent 60%),
+        linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
+      padding-top: calc(40px + env(safe-area-inset-top));
+    }
+    #login-screen.hidden { display: none; }
+
+    .login-logo {
+      font-size: 34px;
+      font-weight: 800;
+      color: #ff6b1a;
+      margin-bottom: 8px;
+      text-shadow: 0 0 30px rgba(255, 107, 26, 0.4);
+    }
+    .login-logo .sub {
+      color: #fff;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 4px;
+      margin-left: 6px;
+    }
+    .login-sub {
+      font-size: 14px;
+      color: #8a8a8a;
+      margin-bottom: 40px;
     }
 
-    .tabbar .tab-btn {
-      flex: 1 !important;
-      background: none !important;
-      border: none !important;
-      color: rgba(255, 255, 255, 0.55) !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      gap: 2px !important;
-      padding: 6px 0 5px !important;
-      cursor: pointer !important;
-      font-family: inherit !important;
-      font-size: 10px !important;
+    .code-box {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+      transition: transform 0.1s;
+    }
+    .code-box.shake {
+      animation: shake 0.4s;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
     }
 
-    .tabbar .tab-btn .tab-icon {
-      width: 34px !important;
-      height: 28px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      border-radius: 12px !important;
+    .code-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.2s;
+    }
+    .code-dot.filled {
+      background: #ff6b1a;
+      border-color: #ff6b1a;
+      box-shadow: 0 0 12px rgba(255, 107, 26, 0.7);
     }
 
-    .tabbar .tab-btn svg {
-      width: 21px !important;
-      height: 21px !important;
-      max-width: 21px !important;
-      max-height: 21px !important;
-      stroke: currentColor !important;
-      stroke-width: 2 !important;
-      fill: none !important;
+    #login-error {
+      color: #dc2626;
+      font-size: 14px;
+      height: 20px;
+      margin-bottom: 20px;
+      font-weight: 500;
     }
 
-    .tabbar .tab-btn span {
-      font-size: 10px !important;
-      font-weight: 600 !important;
-      color: inherit !important;
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 300px;
     }
-
-    .tabbar .tab-btn.active {
-      color: #ff6b1a !important;
+    .pin-pad button {
+      height: 68px;
+      border: none;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 26px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
     }
-
-    .tabbar .tab-btn.active .tab-icon: {
-      background: rgba(255, 107, 26, 0.18) !important;
+    .pin-pad button:active {
+      background: rgba(255, 107, 26, 0.25);
+      border-color: rgba(255, 107, 26, 0.5);
+      transform: scale(0.95);
     }
-
-    .tabbar .tab-btn.active svg {
-      filter: drop-shadow(0 0 10px rgba(255, 107, 26, 0.8)) !important;
+    .pin-pad button[data-action="back"] {
+      font-size: 20px;
+      color: #ff6b1a;
     }
   </style>
 
@@ -90,163 +120,200 @@
 </head>
 <body>
 
-  <header class="topbar">
-    <div class="logo">
-      ZK<span>club</span><b class="logo-divider">|</b><b class="logo-sub">КУХНЯ</b>
+  <!-- ============ ЭКРАН ВХОДА ============ -->
+  <div id="login-screen" class="hidden">
+    <div class="login-logo">ZK<span>club</span> <span class="sub">КУХНЯ</span></div>
+    <div class="login-sub">Введите код доступа</div>
+
+    <div class="code-box">
+      <div class="code-dot"></div>
+      <div class="code-dot"></div>
+      <div class="code-dot"></div>
+      <div class="code-dot"></div>
     </div>
-    <button class="icon-btn" aria-label="Профиль">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
-        <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </header>
 
-  <main class="content">
-    <section class="tab-view active" id="tab-inventory">
-      <h1 class="section-title">Склад</h1>
-      <p class="section-sub">Ингредиенты на кухне</p>
+    <div id="login-error"></div>
 
-      <div class="search-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none">
-          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-          <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <input id="search-input" type="search" placeholder="Поиск ингредиента…">
-      </div>
-
-      <div id="ingredients-list" class="ingredients-list"></div>
-    </section>
-
-    <section class="tab-view" id="tab-cooking">
-      <h1 class="section-title">Приготовление</h1>
-      <p class="section-sub">Пошаговые инструкции для блюд</p>
-      <div class="placeholder">
-        <div class="placeholder-icon">👨‍🍳</div>
-        <div class="placeholder-text">Раздел в разработке</div>
-      </div>
-    </section>
-
-    <section class="tab-view" id="tab-techcards">
-      <h1 class="section-title">ТТК</h1>
-      <p class="section-sub">Технологические карты</p>
-      <div class="placeholder">
-        <div class="placeholder-icon">📋</div>
-        <div class="placeholder-text">Раздел в разработке</div>
-      </div>
-    </section>
-
-    <section class="tab-view" id="tab-comments">
-      <h1 class="section-title">Комментарии</h1>
-      <p class="section-sub">Заметки смены</p>
-      <div class="placeholder">
-        <div class="placeholder-icon">💬</div>
-        <div class="placeholder-text">Раздел в разработке</div>
-      </div>
-    </section>
-
-    <section class="tab-view" id="tab-shift">
-      <h1 class="section-title">Смена</h1>
-      <p class="section-sub">Закрытие смены и отчёт</p>
-      <div class="placeholder">
-        <div class="placeholder-icon">📊</div>
-        <div class="placeholder-text">Раздел в разработке</div>
-      </div>
-    </section>
-  </main>
-
-  <button id="add-btn" class="fab" aria-label="Добавить ингредиент">
-    <svg viewBox="0 0 24 24" fill="none">
-      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>
-  </button>
-
-  <div id="modal" class="modal hidden">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <h2 id="modal-title">Новый ингредиент</h2>
-
-      <label>Название</label>
-      <input id="m-name" type="text" placeholder="Например, Лук репчатый">
-
-      <label>Категория</label>
-      <input id="m-category" type="text" placeholder="Овощи" list="cat-list">
-      <datalist id="cat-list"></datalist>
-
-      <label>Количество</label>
-      <div class="input-row">
-        <input id="m-quantity" type="number" step="0.001" inputmode="decimal" placeholder="0">
-        <select id="m-unit">
-          <option value="g">г</option>
-          <option value="kg">кг</option>
-          <option value="ml">мл</option>
-          <option value="l">л</option>
-          <option value="pcs">шт</option>
-        </select>
-      </div>
-
-      <label>Порог «мало осталось»</label>
-      <div class="input-row">
-        <input id="m-min" type="number" step="0.001" inputmode="decimal" placeholder="0">
-        <span id="m-min-unit" class="unit-label">кг</span>
-      </div>
-
-      <div class="modal-actions">
-        <button id="modal-cancel" class="btn-secondary">Отмена</button>
-        <button id="modal-save" class="btn-primary">Сохранить</button>
-      </div>
+    <div class="pin-pad" id="pin-pad">
+      <button data-digit="1">1</button>
+      <button data-digit="2">2</button>
+      <button data-digit="3">3</button>
+      <button data-digit="4">4</button>
+      <button data-digit="5">5</button>
+      <button data-digit="6">6</button>
+      <button data-digit="7">7</button>
+      <button data-digit="8">8</button>
+      <button data-digit="9">9</button>
+      <button data-action="back" style="visibility:hidden"></button>
+      <button data-digit="0">0</button>
+      <button data-action="back">⌫</button>
     </div>
   </div>
 
-  <nav class="tabbar">
-    <button class="tab-btn active" data-tab="inventory">
-      <div class="tab-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M3 7l9 4 9-4M12 11v10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
+  <!-- ============ ОСНОВНОЕ ПРИЛОЖЕНИЕ ============ -->
+  <div id="app-screen" class="hidden" style="display:flex;flex-direction:column;height:100dvh;padding-top:env(safe-area-inset-top);">
+
+    <header class="topbar">
+      <div class="logo">
+        ZK<span>club</span><b class="logo-divider">|</b><b class="logo-sub">КУХНЯ</b>
       </div>
-      <span>Склад</span>
+      <button class="icon-btn" aria-label="Выйти" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+          <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <main class="content">
+      <section class="tab-view active" id="tab-inventory">
+        <h1 class="section-title">Склад</h1>
+        <p class="section-sub">Ингредиенты на кухне</p>
+
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input id="search-input" type="search" placeholder="Поиск ингредиента…">
+        </div>
+
+        <div id="ingredients-list" class="ingredients-list"></div>
+      </section>
+
+      <section class="tab-view" id="tab-cooking">
+        <h1 class="section-title">Приготовление</h1>
+        <p class="section-sub">Пошаговые инструкции для блюд</p>
+        <div class="placeholder">
+          <div class="placeholder-icon">👨‍🍳</div>
+          <div class="placeholder-text">Раздел в разработке</div>
+        </div>
+      </section>
+
+      <section class="tab-view" id="tab-techcards">
+        <h1 class="section-title">ТТК</h1>
+        <p class="section-sub">Технологические карты</p>
+        <div class="placeholder">
+          <div class="placeholder-icon">📋</div>
+          <div class="placeholder-text">Раздел в разработке</div>
+        </div>
+      </section>
+
+      <section class="tab-view" id="tab-comments">
+        <h1 class="section-title">Комментарии</h1>
+        <p class="section-sub">Заметки смены</p>
+        <div class="placeholder">
+          <div class="placeholder-icon">💬</div>
+          <div class="placeholder-text">Раздел в разработке</div>
+        </div>
+      </section>
+
+      <section class="tab-view" id="tab-shift">
+        <h1 class="section-title">Смена</h1>
+        <p class="section-sub">Закрытие смены и отчёт</p>
+        <div class="placeholder">
+          <div class="placeholder-icon">📊</div>
+          <div class="placeholder-text">Раздел в разработке</div>
+        </div>
+      </section>
+    </main>
+
+    <button id="add-btn" class="fab" aria-label="Добавить ингредиент">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
     </button>
 
-    <button class="tab-btn" data-tab="cooking">
-      <div class="tab-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span>Готовка</span>
-    </button>
+    <div id="modal" class="modal hidden">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h2 id="modal-title">Новый ингредиент</h2>
 
-    <button class="tab-btn" data-tab="techcards">
-      <div class="tab-icon">
-        <svg viewBox="0 0 24 24">
-          <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-          <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span>ТТК</span>
-    </button>
+        <label>Название</label>
+        <input id="m-name" type="text" placeholder="Например, Лук репчатый">
 
-    <button class="tab-btn" data-tab="comments">
-      <div class="tab-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M21 12a8 8 0 01-11.6 7.1L4 21l1.9-5.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span>Чат</span>
-    </button>
+        <label>Категория</label>
+        <input id="m-category" type="text" placeholder="Овощи" list="cat-list">
+        <datalist id="cat-list"></datalist>
 
-    <button class="tab-btn" data-tab="shift">
-      <div class="tab-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span>Смена</span>
-    </button>
-  </nav>
+        <label>Количество</label>
+        <div class="input-row">
+          <input id="m-quantity" type="number" step="0.001" inputmode="decimal" placeholder="0">
+          <select id="m-unit">
+            <option value="g">г</option>
+            <option value="kg">кг</option>
+            <option value="ml">мл</option>
+            <option value="l">л</option>
+            <option value="pcs">шт</option>
+          </select>
+        </div>
 
-  <script src="app.js?v=7"></script>
+        <label>Порог «мало осталось»</label>
+        <div class="input-row">
+          <input id="m-min" type="number" step="0.001" inputmode="decimal" placeholder="0">
+          <span id="m-min-unit" class="unit-label">кг</span>
+        </div>
+
+        <div class="modal-actions">
+          <button id="modal-cancel" class="btn-secondary">Отмена</button>
+          <button id="modal-save" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tabbar">
+      <button class="tab-btn active" data-tab="inventory">
+        <div class="tab-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M3 7l9 4 9-4M12 11v10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span>Склад</span>
+      </button>
+
+      <button class="tab-btn" data-tab="cooking">
+        <div class="tab-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 3v8a4 4 0 004 4v6M10 3v8M14 3v8M18 3v8M18 11c0 2-2 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span>Готовка</span>
+      </button>
+
+      <button class="tab-btn" data-tab="techcards">
+        <div class="tab-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span>ТТК</span>
+      </button>
+
+      <button class="tab-btn" data-tab="comments">
+        <div class="tab-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 12a8 8 0 01-11.6 7.1L4 21l1.9-5.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span>Чат</span>
+      </button>
+
+      <button class="tab-btn" data-tab="shift">
+        <div class="tab-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span>Смена</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="login.js"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
