@@ -56,7 +56,6 @@ body {
 .logo span {
   color: var(--orange);
   opacity: 0.65;
- */
   font-weight: 600;
   margin-left: 4px;
 }
@@ -85,16 +84,15 @@ body {
   border: 1px solid var(--border);
   color: var(--text);
   display: flex;
-.  align-items: center;
+  align-items: center;
   justify-content: center;
- placeholder cursor: pointer;
+  cursor: pointer;
   backdrop-filter: blur(10px);
-  transition: background  {
-0.15s;
+  transition: background 0.15s;
 }
 
-.icon-btn :active {
-  background: rgba background(255, 255, 255, 0.1);
+.icon-btn:active {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ======= Контент ======= */
@@ -132,7 +130,9 @@ body {
   margin-bottom: 32px;
 }
 
-/* Плейсхолдер: var(--card);
+/* Плейсхолдер */
+.placeholder {
+  background: var(--card);
   border: 1px dashed var(--border);
   border-radius: 20px;
   padding: 48px 20px;
@@ -152,25 +152,26 @@ body {
   font-weight: 500;
 }
 
-/* ======= Нижняя навигация (плавающий островок) ======= */
+/* ======= Нижняя навигация в стиле App Store ======= */
 .tabbar {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(14px + env(safe-area-inset-bottom));
-  width: calc(100% - 32px);
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  width: calc(100% - 24px);
   max-width: 480px;
   display: flex;
   justify-content: space-around;
-  padding: 8px 6px;
-  background: rgba(28, 28, 30, 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 24px;
+  align-items: center;
+  padding: 6px;
+  background: rgba(30, 30, 32, 0.55);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.55),
-    0 0 0 0.5px rgba(255, 255, 255, 0.05) inset;
+    0 10px 40px rgba(0, 0, 0, 0.6),
+    0 0 0 0.5px rgba(255, 255, 255, 0.06) inset;
   z-index: 100;
 }
 
@@ -178,42 +179,62 @@ body {
   flex: 1;
   background: none;
   border: none;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.55);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 6px 0;
+  gap: 2px;
+  padding: 6px 0 5px;
   cursor: pointer;
-  transition: color 0.2s, transform 0.15s;
+  transition: color 0.2s;
   font-family: inherit;
-  border-radius: 16px;
+  border-radius: 22px;
+  position: relative;
+}
+
+.tab-icon {
+  width: 34px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: background 0.25s, transform 0.25s;
 }
 
 .tab-btn svg {
   width: 21px;
   height: 21px;
   stroke: currentColor;
-  transition: transform 0.2s, filter 0.2s;
+  transition: transform 0.25s, filter 0.25s, stroke-width 0.25s;
+  stroke-width: 2;
 }
 
 .tab-btn span {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.2px;
+  transition: color 0.2s;
 }
 
+/* Активное состояние — как в App Store */
 .tab-btn.active {
   color: var(--orange);
 }
 
-.tab-btn.active svg {
-  filter: drop-shadow(0 0 8px rgba(255, 107, 26, 0.7));
+.tab-btn.active .tab-icon {
+  background: rgba(255, 107, 26, 0.18);
   transform: translateY(-1px);
 }
 
+.tab-btn.active svg {
+  filter: drop-shadow(0 0 10px rgba(255, 107, 26, 0.8));
+  transform: scale(1.08);
+  stroke-width: 2.2;
+}
+
 .tab-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
 /* Скролл невидимый */
