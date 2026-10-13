@@ -1,6 +1,5 @@
 // ============================================
 //  ЧАТ — раздел «Чат»
-//  Пока работает только канал «Общение поваров»
 // ============================================
 
 let chatMessages = [];
@@ -9,9 +8,6 @@ let chatTimer = null;
 let currentChannel = null;
 let lastRenderedId = null;
 
-// ============================================
-//  ЭКРАН СПИСКА КАНАЛОВ
-// ============================================
 function renderChannels() {
   const listEl = document.getElementById('channels-list');
   if (!listEl) return;
@@ -58,9 +54,6 @@ function renderChannels() {
   });
 }
 
-// ============================================
-//  ОТКРЫТИЕ КАНАЛА
-// ============================================
 function openChannel(channel) {
   currentChannel = channel;
 
@@ -69,7 +62,6 @@ function openChannel(channel) {
     document.getElementById('chat-messages-view').classList.remove('hidden');
     document.getElementById('chat-view-title').textContent = 'Общение поваров';
 
-    // Фуллскрин-режим (как в Telegram)
     document.getElementById('tab-comments').classList.add('chat-open');
     document.body.classList.add('chat-open');
 
@@ -87,7 +79,6 @@ function closeChannel() {
   document.getElementById('chat-messages-view').classList.add('hidden');
   document.getElementById('chat-channels-view').classList.remove('hidden');
 
-  // Выходим из фуллскрин-режима
   document.getElementById('tab-comments').classList.remove('chat-open');
   document.body.classList.remove('chat-open');
 
@@ -95,9 +86,6 @@ function closeChannel() {
   lastRenderedId = null;
 }
 
-// ============================================
-//  ЗАГРУЗКА СООБЩЕНИЙ
-// ============================================
 async function loadMessages() {
   if (!currentChannel) return;
 
@@ -134,9 +122,6 @@ async function loadMessages() {
   }
 }
 
-// ============================================
-//  ОТРИСОВКА СООБЩЕНИЙ
-// ============================================
 function escapeHtmlChat(str) {
   const div = document.createElement('div');
   div.textContent = str || '';
@@ -180,9 +165,6 @@ function renderMessages() {
   }, 50);
 }
 
-// ============================================
-//  ОТПРАВКА СООБЩЕНИЯ
-// ============================================
 async function sendMessage() {
   const input = document.getElementById('chat-input');
   if (!input) return;
@@ -230,9 +212,6 @@ async function sendMessage() {
   }
 }
 
-// ============================================
-//  АВТОСИНХРОНИЗАЦИЯ
-// ============================================
 function startChatSync() {
   stopChatSync();
   chatTimer = setInterval(loadMessages, 3000);
@@ -245,9 +224,6 @@ function stopChatSync() {
   }
 }
 
-// ============================================
-//  ИНИЦИАЛИЗАЦИЯ
-// ============================================
 function initChat() {
   renderChannels();
 
@@ -272,9 +248,16 @@ function initChat() {
         sendMessage();
       }
     });
+
+    // При фокусе прокручиваем чат вниз — чтобы поле ввода было над клавиатурой
+    input.addEventListener('focus', () => {
+      setTimeout(() => {
+        const list = document.getElementById('chat-messages-list');
+        if (list) list.scrollTop = list.scrollHeight;
+      }, 300);
+    });
   }
 
-  // Перезагружаем сообщения при возврате на вкладку чата
   const chatTab = document.querySelector('.tab-btn[data-tab="comments"]');
   if (chatTab && !chatTab.dataset.boundChat) {
     chatTab.dataset.boundChat = '1';
