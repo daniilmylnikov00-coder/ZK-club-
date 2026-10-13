@@ -861,3 +861,39 @@ body {
   color: var(--orange);
   white-space: nowrap;
 }
+
+/* ============================================
+   Отключаем поведение браузера
+   ============================================ */
+
+/* Запрещаем выделение текста (как в приложении) */
+* {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Но поля ввода — оставляем выделяемыми (чтобы можно было редактировать) */
+input,
+textarea,
+select,
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Отключаем «резинку» при прокрутке */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Отключаем double-tap zoom */
+html {
+  touch-action: manipulation;
+}
+
+/* Разрешаем вертикальную прокрутку в контенте */
+.content {
+  touch-action: pan-y;
+}
