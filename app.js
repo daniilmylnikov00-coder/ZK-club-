@@ -16,8 +16,21 @@ let dirtyQuantities = {};
 let dirtyUnits = {};
 
 // Для модалки «несохранённые изменения»
-let unsavedAction = null;      // 'logout' | 'switch'
-let pendingTabSwitch = null;   // 'cooking' | 'techcards' | ...
+let unsavedAction = null;
+let pendingTabSwitch = null;
+
+// Для модалки удаления
+let deleteTargetId = null;
+
+// Для свайпа
+let swipeState = {
+  activeCard: null,
+  startX: 0,
+  startY: 0,
+  currentX: 0,
+  isDragging: false,
+  lockedVertical: false
+};
 
 // ============================================
 //  DOM
@@ -27,6 +40,14 @@ const searchEl = document.getElementById('search-input');
 const addBtn   = document.getElementById('add-btn');
 const modal    = document.getElementById('modal');
 const saveBtn  = document.getElementById('save-inventory-btn');
+
+// ============================================
+//  КТО МОЖЕТ УДАЛЯТЬ/МЕНЯТЬ
+// ============================================
+function canEdit() {
+  if (!currentUser) return false;
+  return currentUser.name === 'Даниил';
+}
 
 // ============================================
 //  ЗАГРУЗКА ИЗ SUPABASE
@@ -56,14 +77,14 @@ async function loadFromServer() {
 }
 
 // ============================================
-//  ЕСТЬ ЛИ НЕСОХРАНЁННЫЕ ИЗМЕНЕНИЯ
+//  ЕСТЬ ЛИ НЕСОХРАНЁННЫЕ
 // ============================================
 function hasUnsavedChanges() {
   return Object.keys(dirtyQuantities).length > 0 || Object.keys(dirtyUnits).length > 0;
 }
 
 // ============================================
-//  СОХРАНЕНИЕ ИЗМЕНЕНИЙ
+//  СОХРАНЕНИЕ
 // ============================================
 async function saveChanges() {
   const idsToUpdate = new Set([
@@ -175,6 +196,8 @@ function render() {
                     : (activeEl && activeEl.classList.contains('unit-select') ? 'unit' : null);
   const selStart = activeEl && activeEl.selectionStart !== undefined ? activeEl.selectionStart : null;
 
+  const canSwipe = canEdit();
+
   listEl.innerHTML = filtered.map(item => {
     const isLow = item.min_qty > 0 && item.quantity <= item.min_qty;
     const isDirtyQty = dirtyQuantities[item.id] !== undefined;
@@ -189,26 +212,45 @@ function render() {
 
     return `
       <div class="ingredient-card${isLow ? ' low' : ''}${isDirty ? ' dirty' : ''}" data-id="${item.id}">
-        <div class="ingredient-info">
-          <div class="ingredient-name">${escapeHtml(item.name)}</div>
-          <div class="ingredient-category">${escapeHtml(item.category)}</div>
+        ${canSwipe ? `
+        <div class="ingredient-swipe-actions">
+          <button class="swipe-btn swipe-btn-edit" data-act="edit" data-id="${item.id}">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 20h4l10-10-4-4L4 16v4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M14 6l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Изменить</span>
+          </button>
+          <button class="swipe-btn swipe-btn-delete" data-act="delete" data-id="${item.id}">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 7V4a1 1 0 011-1h2a1 1 0 011 1v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Удалить</span>
+          </button>
         </div>
-        <div class="qty-input-wrap">
-          <input
-            type="text"
-            inputmode="decimal"
-            class="qty-input${isLow ? ' low' : ''}${isDirtyQty ? ' dirty' : ''}"
-            data-id="${item.id}"
-            value="${qtyValue}"
-            placeholder="0"
-          >
-          <select class="unit-select${isDirtyUnit ? ' dirty' : ''}" data-id="${item.id}">
-            <option value="g"  ${displayUnit === 'g'   ? 'selected' : ''}>г</option>
-            <option value="kg" ${displayUnit === 'kg'  ? 'selected' : ''}>кг</option>
-            <option value="ml" ${displayUnit === 'ml'  ? 'selected' : ''}>мл</option>
-            <option value="l"  ${displayUnit === 'l'   ? 'selected' : ''}>л</option>
-            <option value="pcs"${displayUnit === 'pcs' ? 'selected' : ''}>шт</option>
-          </select>
+        ` : ''}
+        <div class="ingredient-card-inner">
+          <div class="ingredient-info">
+            <div class="ingredient-name">${escapeHtml(item.name)}</div>
+            <div class="ingredient-category">${escapeHtml(item.category)}</div>
+          </div>
+          <div class="qty-input-wrap">
+            <input
+              type="text"
+              inputmode="decimal"
+              class="qty-input${isLow ? ' low' : ''}${isDirtyQty ? ' dirty' : ''}"
+              data-id="${item.id}"
+              value="${qtyValue}"
+              placeholder="0"
+            >
+            <select class="unit-select${isDirtyUnit ? ' dirty' : ''}" data-id="${item.id}">
+              <option value="g"  ${displayUnit === 'g'   ? 'selected' : ''}>г</option>
+              <option value="kg" ${displayUnit === 'kg'  ? 'selected' : ''}>кг</option>
+              <option value="ml" ${displayUnit === 'ml'  ? 'selected' : ''}>мл</option>
+              <option value="l"  ${displayUnit === 'l'   ? 'selected' : ''}>л</option>
+              <option value="pcs"${displayUnit === 'pcs' ? 'selected' : ''}>шт</option>
+            </select>
+          </div>
         </div>
       </div>
     `;
@@ -242,7 +284,7 @@ function updateSaveButton() {
 }
 
 // ============================================
-//  МОДАЛКА: НЕСОХРАНЁННЫЕ ИЗМЕНЕНИЯ
+//  МОДАЛКА: НЕСОХРАНЁННЫЕ
 // ============================================
 
 function openUnsavedModal(action) {
@@ -258,17 +300,14 @@ function closeUnsavedModal() {
   if (m) m.classList.add('hidden');
 }
 
-// Обработчики модалки — навешиваем сразу (HTML уже загружен)
 (function bindUnsavedModal() {
   const m = document.getElementById('unsaved-modal');
   if (!m || m.dataset.bound) return;
   m.dataset.bound = '1';
 
-  // Не сохранять
   const cancelBtn = document.getElementById('unsaved-cancel');
   if (cancelBtn) {
     cancelBtn.addEventListener('click', () => {
-      // Сбрасываем изменения
       dirtyQuantities = {};
       dirtyUnits = {};
       updateSaveButton();
@@ -286,7 +325,6 @@ function closeUnsavedModal() {
     });
   }
 
-  // Сохранить и продолжить
   const saveBtnU = document.getElementById('unsaved-save');
   if (saveBtnU) {
     saveBtnU.addEventListener('click', async () => {
@@ -304,13 +342,217 @@ function closeUnsavedModal() {
     });
   }
 
-  // Тап по фону — закрыть без действий
   m.addEventListener('click', (e) => {
-    if (e.target === m) {
-      closeUnsavedModal();
-    }
+    if (e.target === m) closeUnsavedModal();
   });
 })();
+
+// ============================================
+//  МОДАЛКА: ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ
+// ============================================
+
+function openDeleteModal(id) {
+  const item = ingredients.find(i => i.id === id);
+  if (!item) return;
+
+  deleteTargetId = id;
+  const textEl = document.getElementById('delete-text');
+  if (textEl) {
+    textEl.textContent = `«${item.name}» будет удалён из склада. Это действие нельзя отменить.`;
+  }
+  const m = document.getElementById('delete-confirm-modal');
+  if (m) m.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  deleteTargetId = null;
+  const m = document.getElementById('delete-confirm-modal');
+  if (m) m.classList.add('hidden');
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  const id = deleteTargetId;
+
+  const { error } = await window.db
+    .from('ingredients')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Ошибка удаления:', error);
+    alert('Не удалось удалить');
+    closeDeleteModal();
+    return;
+  }
+
+  ingredients = ingredients.filter(i => i.id !== id);
+  delete dirtyQuantities[id];
+  delete dirtyUnits[id];
+
+  closeDeleteModal();
+  updateSaveButton();
+  render();
+}
+
+(function bindDeleteModal() {
+  const m = document.getElementById('delete-confirm-modal');
+  if (!m || m.dataset.bound) return;
+  m.dataset.bound = '1';
+
+  document.getElementById('delete-cancel')?.addEventListener('click', closeDeleteModal);
+  document.getElementById('delete-confirm')?.addEventListener('click', confirmDelete);
+
+  m.addEventListener('click', (e) => {
+    if (e.target === m) closeDeleteModal();
+  });
+})();
+
+// ============================================
+//  СВАЙП
+// ============================================
+
+// Возвращаем все карточки в исходное
+function closeAllSwipes() {
+  listEl.querySelectorAll('.ingredient-card.swiped').forEach(c => {
+    c.classList.remove('swiped');
+  });
+  swipeState.activeCard = null;
+}
+
+// Начало касания
+listEl.addEventListener('touchstart', (e) => {
+  if (!canEdit()) return;
+
+  const card = e.target.closest('.ingredient-card');
+  if (!card) return;
+
+  // Игнорируем свайп по инпутам и по кнопкам
+  if (e.target.closest('.qty-input-wrap')) return;
+  if (e.target.closest('.ingredient-swipe-actions')) return;
+
+  // Если есть несохранённые изменения — блокируем свайп
+  if (hasUnsavedChanges()) {
+    // Покажем модалку или просто ничего не делаем
+    return;
+  }
+
+  const touch = e.touches[0];
+  swipeState.startX = touch.clientX;
+  swipeState.startY = touch.clientY;
+  swipeState.currentX = touch.clientX;
+  swipeState.activeCard = card;
+  swipeState.isDragging = false;
+  swipeState.lockedVertical = false;
+}, { passive: true });
+
+// Движение
+listEl.addEventListener('touchmove', (e) => {
+  if (!swipeState.activeCard) return;
+
+  const touch = e.touches[0];
+  const dx = touch.clientX - swipeState.startX;
+  const dy = touch.clientY - swipeState.startY;
+
+  // Проверяем направление
+  if (!swipeState.lockedVertical) {
+    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+      // Это вертикальный скролл — отменяем свайп
+      swipeState.activeCard = null;
+      return;
+    }
+    if (Math.abs(dx) > 10) {
+      swipeState.lockedVertical = true;
+      swipeState.isDragging = true;
+    }
+  }
+
+  if (!swipeState.isDragging) return;
+
+  // Сдвигаем карточку
+  const inner = swipeState.activeCard.querySelector('.ingredient-card-inner');
+  if (!inner) return;
+
+  // Ограничиваем движение: только влево
+  let offset = Math.min(0, Math.max(-168, dx));
+
+  // Если карточка уже открыта — учитываем
+  if (swipeState.activeCard.classList.contains('swiped')) {
+    offset = Math.min(0, Math.max(-168, -168 + dx));
+  }
+
+  inner.style.transition = 'none';
+  inner.style.transform = `translateX(${offset}px)`;
+}, { passive: true });
+
+// Конец касания
+listEl.addEventListener('touchend', (e) => {
+  if (!swipeState.activeCard) return;
+
+  const card = swipeState.activeCard;
+  const inner = card.querySelector('.ingredient-card-inner');
+  swipeState.activeCard = null;
+
+  if (!swipeState.isDragging) {
+    // Просто тап — закрываем все открытые свайпы
+    closeAllSwipes();
+    return;
+  }
+
+  const touch = e.changedTouches[0];
+  const dx = touch.clientX - swipeState.startX;
+  const wasSwiped = card.classList.contains('swiped');
+
+  if (inner) {
+    inner.style.transition = '';
+    inner.style.transform = '';
+  }
+
+  const THRESHOLD = 40;
+
+  if (wasSwiped) {
+    // Если тянем вправо — закрываем
+    if (dx > THRESHOLD) {
+      card.classList.remove('swiped');
+    } else {
+      card.classList.add('swiped');
+    }
+  } else {
+    // Если тянем влево — открываем
+    if (dx < -THRESHOLD) {
+      closeAllSwipes();
+      card.classList.add('swiped');
+    } else {
+      card.classList.remove('swiped');
+    }
+  }
+
+  swipeState.isDragging = false;
+  swipeState.lockedVertical = false;
+}, { passive: true });
+
+// Клик по кнопкам свайпа
+listEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.swipe-btn');
+  if (!btn) return;
+
+  const act = btn.dataset.act;
+  const id = btn.dataset.id;
+  closeAllSwipes();
+
+  if (act === 'edit') {
+    openEdit(id);
+  } else if (act === 'delete') {
+    openDeleteModal(id);
+  }
+});
+
+// Клик вне карточки — закрываем свайпы
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.ingredient-card')) {
+    closeAllSwipes();
+  }
+});
 
 // ============================================
 //  СОБЫТИЯ СПИСКА
@@ -357,9 +599,7 @@ listEl.addEventListener('change', e => {
   const item = ingredients.find(i => i.id === id);
   if (!item) return;
 
-  const newUnit = select.value;
-  dirtyUnits[id] = newUnit;
-
+  dirtyUnits[id] = select.value;
   select.classList.add('dirty');
   const card = select.closest('.ingredient-card');
   if (card) card.classList.add('dirty');
@@ -380,16 +620,19 @@ if (saveBtn) {
   saveBtn.addEventListener('click', saveChanges);
 }
 
+// Убрали contextmenu — теперь редактирование через свайп
+// Но оставим для совместимости на всякий случай
 listEl.addEventListener('contextmenu', e => {
   const card = e.target.closest('.ingredient-card');
   if (!card) return;
   if (e.target.closest('.qty-input-wrap')) return;
+  if (!canEdit()) return;
   e.preventDefault();
   openEdit(card.dataset.id);
 });
 
 // ============================================
-//  МОДАЛКА (ИНГРЕДИЕНТ)
+//  МОДАЛКА РЕДАКТИРОВАНИЯ/ДОБАВЛЕНИЯ
 // ============================================
 const modalTitle = document.getElementById('modal-title');
 const mName     = document.getElementById('m-name');
@@ -548,7 +791,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const tab = btn.dataset.tab;
     const currentTab = document.querySelector('.tab-btn.active')?.dataset.tab;
 
-    // Уходим со Склада с несохранёнными изменениями — спрашиваем модалкой
     if (currentTab === 'inventory' && tab !== 'inventory' && hasUnsavedChanges()) {
       pendingTabSwitch = tab;
       openUnsavedModal('switch');
@@ -605,8 +847,4 @@ window.onLoginSuccess = async function() {
   if (isLoggedIn()) {
     window.onLoginSuccess();
   } else {
-    document.getElementById('login-screen').classList.remove('hidden');
-    document.getElementById('app-screen').classList.add('hidden');
-    initLoginScreen();
-  }
-})();
+    document.getElementById('login
