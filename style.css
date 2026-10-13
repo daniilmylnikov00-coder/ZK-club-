@@ -904,7 +904,7 @@ html {
 
 .channels-list {
   display: flex;
-  flex-direction:20 column;
+  flex-direction: column;
   gap: 10px;
 }
 
