@@ -15,6 +15,7 @@
   --muted: #8a8a8a;
   --card: rgba(255, 255, 255, 0.05);
   --border: rgba(255, 255, 255, 0.08);
+  --app-height: 100vh;
 }
 
 html, body {
@@ -27,9 +28,13 @@ html, body {
 }
 
 body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: var(--app-height, 100vh);
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  overflow: hidden;
   background:
     radial-gradient(ellipse at top, rgba(255, 107, 26, 0.08), transparent 60%),
     linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
@@ -41,8 +46,8 @@ body {
 #login-screen {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  height: 100dvh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   z-index: 500;
   display: flex;
   flex-direction: column;
@@ -148,12 +153,12 @@ body {
 #app-screen {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100%;
   padding-top: env(safe-area-inset-top);
+  overflow: hidden;
 }
 #app-screen.hidden { display: none; }
 
-/* Шапка */
 .topbar {
   display: flex;
   align-items: center;
@@ -212,7 +217,6 @@ body {
   display: block;
 }
 
-/* Имя + иконка */
 .user-chip {
   display: flex;
   align-items: center;
@@ -236,7 +240,6 @@ body {
   white-space: nowrap;
 }
 
-/* Контент */
 .content {
   flex: 1;
   overflow-y: auto;
@@ -244,6 +247,7 @@ body {
   -webkit-overflow-scrolling: touch;
   position: relative;
   touch-action: pan-y;
+  min-height: 0;
 }
 
 .tab-view { display: none; }
@@ -261,7 +265,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* Плейсхолдер */
 .placeholder {
   background: var(--card);
   border: 1px dashed var(--border);
@@ -280,7 +283,6 @@ body {
   color: var(--muted);
 }
 
-/* Поиск */
 .search-wrap {
   position: relative;
   margin-bottom: 16px;
@@ -314,7 +316,6 @@ body {
 
 #search-input::placeholder { color: var(--muted); }
 
-/* Список ингредиентов */
 .ingredients-list {
   display: flex;
   flex-direction: column;
@@ -400,7 +401,6 @@ body {
   font-size: 14px;
 }
 
-/* Кнопка + */
 .fab {
   position: fixed;
   right: 20px;
@@ -422,7 +422,6 @@ body {
 .fab svg { width: 26px; height: 26px; }
 .fab.hidden { display: none; }
 
-/* Модалка */
 .modal {
   position: fixed;
   inset: 0;
@@ -432,7 +431,7 @@ body {
   z-index: 200;
 }
 
-.modal.hidden { display: none; }
+.modal.hidden { display: none !important; }
 
 .modal-sheet {
   width: 100%;
@@ -850,12 +849,40 @@ html {
 .chat-view-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
+
 .chat-view-header .section-title {
   font-size: 22px;
   margin: 0;
+}
+
+.dish-back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.dish-back-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+
+.dish-back-btn:active {
+  background: rgba(255, 107, 26, 0.15);
 }
 
 .chat-messages-list {
@@ -959,7 +986,6 @@ html {
 .chat-input-bar button:active { transform: scale(0.92); }
 .chat-input-bar button svg { width: 22px; height: 22px; }
 
-/* Кнопка камеры */
 .chat-input-bar .photo-btn {
   background: rgba(255, 255, 255, 0.06) !important;
   color: var(--orange) !important;
@@ -967,6 +993,11 @@ html {
 }
 .chat-input-bar .photo-btn:active {
   background: rgba(255, 107, 26, 0.15) !important;
+}
+
+/* Скрытый file-инпут — на всякий случай */
+#chat-photo-input {
+  display: none !important;
 }
 
 /* ============================================
@@ -1067,9 +1098,7 @@ body.chat-open .tabbar {
   background: rgba(255,107,26,0.15);
   border-color: rgba(255,107,26,0.3);
 }
-.photo-source-btn .emoji {
-  font-size: 22px;
-}
+.photo-source-btn .emoji { font-size: 22px; }
 .photo-source-cancel {
   width: 100%;
   padding: 14px;
@@ -1084,80 +1113,9 @@ body.chat-open .tabbar {
   cursor: pointer;
 }
 
-/* Стрелка «Назад» в чате */
-.chat-view-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.dish-back-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.dish-back-btn svg {
-  width: 22px !important;
-  height: 22px !important;
-  display: block;
-  stroke: currentColor;
-  fill: none;
-}
-
-.dish-back-btn:active {
-  background: rgba(255, 107, 26, 0.15);
-}
-
-/* Стрелка «Назад» в чате */
-.chat-view-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.dish-back-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.dish-back-btn svg {
-  width: 22px !important;
-  height: 22px !important;
-  display: block;
-  stroke: currentColor;
-  fill: none;
-}
-
-.dish-back-btn:active {
-  background: rgba(255, 107, 26, 0.15);
-}
-
 /* ============================================
    ТТК — кнопка «Добавить» и модалка
    ============================================ */
-
 .ttk-add-btn {
   width: 100%;
   padding: 14px;
@@ -1177,7 +1135,6 @@ body.chat-open .tabbar {
   border-color: rgba(255, 107, 26, 0.7);
 }
 
-/* Форма добавления ингредиентов */
 .add-ingredients {
   display: flex;
   flex-direction: column;
@@ -1230,46 +1187,3 @@ body.chat-open .tabbar {
   height: 36px;
   border-radius: 10px;
   background: rgba(220, 38, 38, 0.12);
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  color: #dc2626;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-}
-.add-ing-remove:active {
-  background: rgba(220, 38, 38, 0.25);
-}
-
-.add-ing-btn {
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(255, 255, 255, 0.15);
-  color: var(--orange);
-  font-size: 14px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-}
-.add-ing-btn:active {
-  background: rgba(255, 107, 26, 0.12);
-}
-
-/* Жёсткая страховка: скрытая модалка точно скрыта */
-.modal.hidden {
-  display: none !important;
-}
-
-/* И модалка добавления блюда тоже */
-#add-dish-modal.hidden {
-  display: none !important;
-}
-
-<div id="add-dish-modal" class="modal hidden">
