@@ -1746,13 +1746,13 @@ nav.tabbar .tab-btn.active svg {
 }
 
 /* ============================================
-   СКЛАД — свайп по карточке (круглые кнопки)
+   СКЛАД — свайп по карточке
    ============================================ */
 
 .ingredient-card {
   position: relative !important;
   overflow: hidden !important;
-  background: var(--card) !important;
+  background: #1a1a1a !important;
   border: 1px solid var(--border) !important;
   border-radius: 16px !important;
   padding: 0 !important;
@@ -1765,7 +1765,7 @@ nav.tabbar .tab-btn.active svg {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  background: var(--card);
+  background: #1a1a1a;
   border-radius: 16px;
   position: relative;
   z-index: 2;
@@ -1774,9 +1774,14 @@ nav.tabbar .tab-btn.active svg {
 }
 
 .ingredient-card.dirty .ingredient-card-inner {
-  background: rgba(255, 107, 26, 0.04);
+  background: #1a1a1a;
 }
 
+.ingredient-card.low .ingredient-card-inner {
+  background: #1a1a1a;
+}
+
+/* Контейнер кнопок */
 .ingredient-swipe-actions {
   position: absolute;
   top: 0;
@@ -1784,14 +1789,14 @@ nav.tabbar .tab-btn.active svg {
   bottom: 0;
   display: flex;
   align-items: center;
-  gap: 0;
-  padding-right: 14px;
+  gap: 8px;
+  padding-right: 10px;
   z-index: 1;
 }
 
 .ingredient-swipe-actions .swipe-btn {
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border: none;
   font-family: inherit;
   cursor: pointer;
@@ -1803,27 +1808,53 @@ nav.tabbar .tab-btn.active svg {
   color: #fff;
   padding: 0;
   border-radius: 50%;
-  margin: 0 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: transform 0.15s;
+  /* Анимация появления */
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Когда карточка свайпнута — появляются */
+.ingredient-card.swiped .ingredient-swipe-actions .swipe-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Очередность появления — сначала "Изменить", потом "Удалить" */
+.ingredient-card.swiped .swipe-btn-edit {
+  transition-delay: 0s;
+}
+.ingredient-card.swiped .swipe-btn-delete {
+  transition-delay: 0.08s;
+}
+
+/* Обратная анимация при закрытии */
+.ingredient-card:not(.swiped) .swipe-btn-delete {
+  transition-delay: 0s;
+}
+.ingredient-card:not(.swiped) .swipe-btn-edit {
+  transition-delay: 0.08s;
 }
 
 .ingredient-swipe-actions .swipe-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .ingredient-swipe-actions .swipe-btn svg {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
 }
 
 .ingredient-swipe-actions .swipe-btn span {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
-  margin-top: 2px;
+  margin-top: 1px;
   color: #fff;
 }
 
@@ -1841,6 +1872,7 @@ nav.tabbar .tab-btn.active svg {
   background: #b91c1c;
 }
 
+/* Сдвиг карточки при свайпе */
 .ingredient-card.swiped .ingredient-card-inner {
-  transform: translateX(-180px);
+  transform: translateX(-136px); /* 56px + 8px + 56px + 10px + 6px запас = 136 */
 }
