@@ -971,6 +971,10 @@ html {
   min-height: 200px;
 }
 
+body.keyboard-open .chat-messages-list {
+  padding-bottom: 90px;
+}
+
 .chat-msg {
   display: flex;
   width: 100%;
@@ -1037,3 +1041,10 @@ html {
 body.keyboard-open .chat-input-bar {
   bottom: calc(env(keyboard-inset-height, 12px) + 12px);
 } }
+
+/* ============================================
+   Клавиатура открыта — прячем нижнюю панель
+   ============================================ */
+body.keyboard-open .tabbar {
+  display: none;
+}
