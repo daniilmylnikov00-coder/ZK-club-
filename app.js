@@ -15,6 +15,10 @@ let isRendering = false;
 let dirtyQuantities = {};
 let dirtyUnits = {};
 
+// Для модалки «несохранённые изменения»
+let unsavedAction = null;      // 'logout' | 'switch'
+let pendingTabSwitch = null;   // 'cooking' | 'techcards' | ...
+
 // ============================================
 //  DOM
 // ============================================
@@ -60,7 +64,6 @@ function hasUnsavedChanges() {
 
 // ============================================
 //  СОХРАНЕНИЕ ИЗМЕНЕНИЙ
-//  Конфликт: кто последний нажал «Сохранить» — тот и прав
 // ============================================
 async function saveChanges() {
   const idsToUpdate = new Set([
@@ -239,6 +242,77 @@ function updateSaveButton() {
 }
 
 // ============================================
+//  МОДАЛКА: НЕСОХРАНЁННЫЕ ИЗМЕНЕНИЯ
+// ============================================
+
+function openUnsavedModal(action) {
+  unsavedAction = action;
+  const m = document.getElementById('unsaved-modal');
+  if (m) m.classList.remove('hidden');
+}
+
+function closeUnsavedModal() {
+  unsavedAction = null;
+  pendingTabSwitch = null;
+  const m = document.getElementById('unsaved-modal');
+  if (m) m.classList.add('hidden');
+}
+
+// Обработчики модалки — навешиваем сразу (HTML уже загружен)
+(function bindUnsavedModal() {
+  const m = document.getElementById('unsaved-modal');
+  if (!m || m.dataset.bound) return;
+  m.dataset.bound = '1';
+
+  // Не сохранять
+  const cancelBtn = document.getElementById('unsaved-cancel');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      // Сбрасываем изменения
+      dirtyQuantities = {};
+      dirtyUnits = {};
+      updateSaveButton();
+      render();
+
+      const action = unsavedAction;
+      const tab = pendingTabSwitch;
+      closeUnsavedModal();
+
+      if (action === 'logout') {
+        doLogout();
+      } else if (action === 'switch' && tab) {
+        switchTab(tab);
+      }
+    });
+  }
+
+  // Сохранить и продолжить
+  const saveBtnU = document.getElementById('unsaved-save');
+  if (saveBtnU) {
+    saveBtnU.addEventListener('click', async () => {
+      await saveChanges();
+
+      const action = unsavedAction;
+      const tab = pendingTabSwitch;
+      closeUnsavedModal();
+
+      if (action === 'logout') {
+        doLogout();
+      } else if (action === 'switch' && tab) {
+        switchTab(tab);
+      }
+    });
+  }
+
+  // Тап по фону — закрыть без действий
+  m.addEventListener('click', (e) => {
+    if (e.target === m) {
+      closeUnsavedModal();
+    }
+  });
+})();
+
+// ============================================
 //  СОБЫТИЯ СПИСКА
 // ============================================
 
@@ -286,12 +360,6 @@ listEl.addEventListener('change', e => {
   const newUnit = select.value;
   dirtyUnits[id] = newUnit;
 
-  // Пересчёт: если поменяли единицу — пересчитываем количество
-  const raw = (dirtyQuantities[id] !== undefined)
-    ? (item.unit === 'kg' || item.unit === 'l' ? dirtyQuantities[id] / 1000 : dirtyQuantities[id])
-    : null;
-
-  // Если количество ещё не менялось — оставляем как есть, только меняем единицу
   select.classList.add('dirty');
   const card = select.closest('.ingredient-card');
   if (card) card.classList.add('dirty');
@@ -321,7 +389,7 @@ listEl.addEventListener('contextmenu', e => {
 });
 
 // ============================================
-//  МОДАЛКА
+//  МОДАЛКА (ИНГРЕДИЕНТ)
 // ============================================
 const modalTitle = document.getElementById('modal-title');
 const mName     = document.getElementById('m-name');
@@ -460,30 +528,34 @@ function updateFabVisibility(tab) {
   }
 }
 
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const targetBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+  if (targetBtn) targetBtn.classList.add('active');
+
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+  const targetView = document.getElementById('tab-' + tab);
+  if (targetView) targetView.classList.add('active');
+
+  const content = document.querySelector('.content');
+  if (content) content.scrollTop = 0;
+
+  updateFabVisibility(tab);
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
     const currentTab = document.querySelector('.tab-btn.active')?.dataset.tab;
 
-    // Уходим со Склада с несохранёнными изменениями — спрашиваем
+    // Уходим со Склада с несохранёнными изменениями — спрашиваем модалкой
     if (currentTab === 'inventory' && tab !== 'inventory' && hasUnsavedChanges()) {
-      const wantSave = confirm('Есть несохранённые изменения.\n\nOK — сохранить и перейти\nОтмена — не сохранять');
-      if (wantSave) {
-        saveChanges();
-      } else {
-        // Не сохраняем — сбрасываем
-        dirtyQuantities = {};
-        dirtyUnits = {};
-        updateSaveButton();
-      }
+      pendingTabSwitch = tab;
+      openUnsavedModal('switch');
+      return;
     }
 
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.querySelector('.content').scrollTop = 0;
-    updateFabVisibility(tab);
+    switchTab(tab);
   });
 });
 
@@ -492,12 +564,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // ============================================
 function logout() {
   if (hasUnsavedChanges()) {
-    const wantSave = confirm('Есть несохранённые изменения.\n\nOK — сохранить и выйти\nОтмена — выйти без сохранения');
-    if (wantSave) {
-      saveChanges();
-    }
+    openUnsavedModal('logout');
+    return;
   }
-  if (!confirm('Выйти из аккаунта?')) return;
+  doLogout();
+}
+
+function doLogout() {
   clearUserSession();
   currentUser = null;
   location.reload();
