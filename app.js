@@ -15,6 +15,21 @@ setTimeout(setRealHeight, 300);
 setTimeout(setRealHeight, 1000);
 setRealHeight();
 
+// Пересчёт высоты при возврате в приложение
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    setRealHeight();
+    setTimeout(setRealHeight, 100);
+    setTimeout(setRealHeight, 500);
+  }
+});
+
+// Пересчёт при первом касании после возврата
+document.addEventListener('touchstart', function fixOnce() {
+  setRealHeight();
+  document.removeEventListener('touchstart', fixOnce);
+}, { once: true, passive: true });
+
 // ============================================
 //  ПОДКЛЮЧЕНИЕ К SUPABASE
 // ============================================
