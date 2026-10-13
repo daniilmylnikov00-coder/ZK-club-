@@ -1,5 +1,8 @@
 // ============================================
-//  ЧАТ — с поддержкой фото
+//  ЧАТ — 3 канала
+//  - Отчёт смены: только фото, только Даниил+Юра
+//  - Списание: только фото, все роли
+//  - Общение: текст + фото, все роли
 // ============================================
 
 let chatMessages = [];
@@ -8,6 +11,20 @@ let chatTimer = null;
 let currentChannel = null;
 let lastRenderedId = null;
 let isUploading = false;
+
+// Права на отправку по каналам (по имени пользователя)
+const CHANNEL_PERMISSIONS = {
+  shift_report: ['Даниил', 'Юра'],
+  writeoff: ['Даниил', 'Юра', 'Менеджер', 'Эвальд'],
+  chat: ['Даниил', 'Юра', 'Менеджер', 'Эвальд']
+};
+
+function canPost(channel) {
+  const me = getCurrentUser();
+  if (!me) return false;
+  const allowed = CHANNEL_PERMISSIONS[channel] || [];
+  return allowed.includes(me.name);
+}
 
 // ============================================
 //  СПИСОК КАНАЛОВ
@@ -23,20 +40,14 @@ function renderChannels() {
         <div class="channel-name">Отчёт закрытия смены</div>
         <div class="channel-desc">Фото закрытия смены</div>
       </div>
-      <svg class="channel-arrow" viewBox="0 0 24 24" fill="none">
-        <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
     </div>
 
     <div class="channel-card" data-channel="writeoff">
       <div class="channel-emoji">📦</div>
       <div class="channel-info">
         <div class="channel-name">Списание продукции</div>
-        <div class="channel-desc">Фото + подпись</div>
+        <div class="channel-desc">Фото списания</div>
       </div>
-      <svg class="channel-arrow" viewBox="0 0 24 24" fill="none">
-        <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
     </div>
 
     <div class="channel-card" data-channel="chat">
@@ -45,9 +56,6 @@ function renderChannels() {
         <div class="channel-name">Общение поваров</div>
         <div class="channel-desc">Общий чат</div>
       </div>
-      <svg class="channel-arrow" viewBox="0 0 24 24" fill="none">
-        <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
     </div>
   `;
 
@@ -59,22 +67,27 @@ function renderChannels() {
 // ============================================
 //  ОТКРЫТИЕ / ЗАКРЫТИЕ КАНАЛА
 // ============================================
+const CHANNEL_TITLES = {
+  shift_report: 'Отчёт закрытия смены',
+  writeoff: 'Списание продукции',
+  chat: 'Общение поваров'
+};
+
 function openChannel(channel) {
   currentChannel = channel;
 
-  if (channel === 'chat') {
-    document.getElementById('chat-channels-view').classList.add('hidden');
-    document.getElementById('chat-messages-view').classList.remove('hidden');
-    document.getElementById('chat-view-title').textContent = 'Общение поваров';
+  document.getElementById('chat-channels-view').classList.add('hidden');
+  document.getElementById('chat-messages-view').classList.remove('hidden');
+  document.getElementById('chat-view-title').textContent = CHANNEL_TITLES[channel] || 'Чат';
 
-    document.getElementById('tab-comments').classList.add('chat-open');
-    document.body.classList.add('chat-open');
+  document.getElementById('tab-comments').classList.add('chat-open');
+  document.body.classList.add('chat-open');
 
-    loadMessages();
-    startChatSync();
-  } else {
-    alert('Этот канал в разработке. Скоро будет.');
-  }
+  // Настраиваем режим ввода под канал
+  setupInputMode(channel);
+
+  loadMessages();
+  startChatSync();
 }
 
 function closeChannel() {
@@ -89,6 +102,33 @@ function closeChannel() {
 
   chatMessages = [];
   lastRenderedId = null;
+}
+
+// ============================================
+//  РЕЖИМ ВВОДА (текст / только фото)
+// ============================================
+function setupInputMode(channel) {
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send-btn');
+  const photoBtn = document.getElementById('chat-photo-btn');
+
+  if (!input || !sendBtn || !photoBtn) return;
+
+  const allowed = canPost(channel);
+
+  if (channel === 'chat') {
+    // Общение — текст + фото
+    input.style.display = '';
+    sendBtn.style.display = allowed ? '' : 'none';
+    photoBtn.style.display = allowed ? '' : 'none';
+    input.disabled = !allowed;
+    input.placeholder = allowed ? 'Сообщение…' : 'Только чтение';
+  } else {
+    // Отчёт смены и Списание — только фото
+    input.style.display = 'none';
+    sendBtn.style.display = 'none';
+    photoBtn.style.display = allowed ? '' : 'none';
+  }
 }
 
 // ============================================
@@ -151,7 +191,10 @@ function renderMessages() {
   if (!listEl) return;
 
   if (chatMessages.length === 0) {
-    listEl.innerHTML = '<div class="empty-state">Сообщений пока нет. Напишите первым!</div>';
+    let empty = 'Сообщений пока нет.';
+    if (currentChannel === 'chat') empty = 'Сообщений пока нет. Напишите первым!';
+    else empty = 'Сообщений пока нет';
+    listEl.innerHTML = `<div class="empty-state">${empty}</div>`;
     return;
   }
 
@@ -181,9 +224,11 @@ function renderMessages() {
 }
 
 // ============================================
-//  ОТПРАВКА ТЕКСТА
+//  ОТПРАВКА ТЕКСТА (только для chat)
 // ============================================
 async function sendMessage() {
+  if (currentChannel !== 'chat') return;
+
   const input = document.getElementById('chat-input');
   if (!input) return;
 
@@ -192,6 +237,11 @@ async function sendMessage() {
 
   const me = getCurrentUser();
   if (!me) return;
+
+  if (!canPost(currentChannel)) {
+    alert('У вас нет права отправлять сообщения в этот канал');
+    return;
+  }
 
   input.value = '';
 
@@ -294,7 +344,12 @@ async function handlePhotoSelected(e) {
   const me = getCurrentUser();
   if (!me) { isUploading = false; return; }
 
-  // Показать превью «загружается»
+  if (!canPost(currentChannel)) {
+    alert('У вас нет права отправлять в этот канал');
+    isUploading = false;
+    return;
+  }
+
   const tempMsg = {
     id: 'temp-' + Date.now(),
     channel: currentChannel,
@@ -306,10 +361,8 @@ async function handlePhotoSelected(e) {
   renderMessages();
 
   try {
-    // 1. Сжимаем фото
     const compressed = await compressImage(file, 1280, 0.8);
 
-    // 2. Загружаем в Supabase Storage
     const ext = 'jpg';
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const filePath = `${currentChannel}/${fileName}`;
@@ -330,14 +383,12 @@ async function handlePhotoSelected(e) {
       return;
     }
 
-    // 3. Получаем публичный URL
     const { data: urlData } = window.db.storage
       .from('chat-photos')
       .getPublicUrl(filePath);
 
     const imageUrl = urlData.publicUrl;
 
-    // 4. Сохраняем сообщение в БД
     const { error: dbError } = await window.db
       .from('messages')
       .insert({
@@ -357,7 +408,6 @@ async function handlePhotoSelected(e) {
       return;
     }
 
-    // 5. Убираем временное сообщение, перезагружаем
     chatMessages = chatMessages.filter(m => m.id !== tempMsg.id);
     lastRenderedId = null;
     await loadMessages();
@@ -383,7 +433,6 @@ function compressImage(file, maxSize, quality) {
       img.onload = () => {
         let { width, height } = img;
 
-        // Уменьшаем до maxSize по большей стороне
         if (width > height && width > maxSize) {
           height = Math.round(height * maxSize / width);
           width = maxSize;
@@ -478,7 +527,7 @@ function initChat() {
   if (chatTab && !chatTab.dataset.boundChat) {
     chatTab.dataset.boundChat = '1';
     chatTab.addEventListener('click', () => {
-      if (currentChannel === 'chat') {
+      if (currentChannel) {
         loadMessages();
       }
     });
