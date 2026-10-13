@@ -1,11 +1,11 @@
 // ============================================
-//  РАЗДЕЛ ТТК
+//  РАЗДЕЛ ТТК — аккордеон
 // ============================================
 
 let dishes = [];
 let dishIngredients = [];
 let techcardsLoaded = false;
-let currentDishId = null;
+let openDishId = null;
 
 // Загрузка из Supabase
 async function loadTechcards() {
@@ -59,16 +59,30 @@ function renderDishes() {
   Object.keys(grouped).forEach(cat => {
     html += `<div class="ttk-category">${escapeHtmlTtk(cat)}</div>`;
     grouped[cat].forEach(d => {
-      const count = dishIngredients.filter(i => i.dish_id === d.id).length;
+      const items = dishIngredients.filter(i => i.dish_id === d.id);
+      const isOpen = openDishId === d.id;
+
+      const ingHtml = items.map(item => `
+        <div class="dish-ingredient">
+          <div class="dish-ingredient-name">${escapeHtmlTtk(item.name)}</div>
+          <div class="dish-ingredient-amount">${escapeHtmlTtk(item.amount)}</div>
+        </div>
+      `).join('');
+
       html += `
-        <div class="dish-card" data-id="${d.id}">
-          <div class="dish-info">
-            <div class="dish-name">${escapeHtmlTtk(d.name)}</div>
-            <div class="dish-meta">${count} ингредиентов</div>
+        <div class="dish-card ${isOpen ? 'open' : ''}" data-id="${d.id}">
+          <div class="dish-header">
+            <div class="dish-info">
+              <div class="dish-name">${escapeHtmlTtk(d.name)}</div>
+              <div class="dish-meta">${items.length} ингредиентов</div>
+            </div>
+            <svg class="dish-arrow" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
-          <svg class="dish-arrow" viewBox="0 0 24 24" fill="none">
-            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <div class="dish-body">
+            ${ingHtml}
+          </div>
         </div>
       `;
     });
@@ -77,60 +91,32 @@ function renderDishes() {
   listEl.innerHTML = html;
 }
 
-// Открыть карточку блюда
-function openDish(dishId) {
-  const dish = dishes.find(d => d.id === dishId);
-  if (!dish) return;
-
-  currentDishId = dishId;
-
-  const titleEl = document.getElementById('dish-view-title');
-  const listEl = document.getElementById('dish-view-ingredients');
-
-  titleEl.textContent = dish.name;
-
-  const items = dishIngredients.filter(i => i.dish_id === dishId);
-  if (items.length === 0) {
-    listEl.innerHTML = '<div class="empty-state">Ингредиентов нет</div>';
+// Тап на блюдо — раскрыть/закрыть
+function toggleDish(dishId) {
+  if (openDishId === dishId) {
+    openDishId = null;
   } else {
-    listEl.innerHTML = items.map(item => `
-      <div class="dish-ingredient">
-        <div class="dish-ingredient-name">${escapeHtmlTtk(item.name)}</div>
-        <div class="dish-ingredient-amount">${escapeHtmlTtk(item.amount)}</div>
-      </div>
-    `).join('');
+    openDishId = dishId;
   }
-
-  document.getElementById('techcards-list-view').classList.add('hidden');
-  document.getElementById('techcards-dish-view').classList.remove('hidden');
+  renderDishes();
 }
 
-// Назад к списку
-function closeDish() {
-  document.getElementById('techcards-dish-view').classList.add('hidden');
-  document.getElementById('techcards-list-view').classList.remove('hidden');
-  currentDishId = null;
-}
-
-// Инициализация событий
+// Инициализация
 function initTechcards() {
   const listEl = document.getElementById('dishes-list');
-  if (listEl) {
+  if (listEl && !listEl.dataset.bound) {
+    listEl.dataset.bound = '1';
     listEl.addEventListener('click', (e) => {
       const card = e.target.closest('.dish-card');
       if (!card) return;
-      openDish(card.dataset.id);
+      toggleDish(card.dataset.id);
     });
   }
 
-  const backBtn = document.getElementById('dish-back-btn');
-  if (backBtn) {
-    backBtn.addEventListener('click', closeDish);
-  }
-
-  // Загружаем, когда пользователь впервые открывает вкладку
+  // Загружаем при первом открытии вкладки ТТК
   const ttkTab = document.querySelector('.tab-btn[data-tab="techcards"]');
-  if (ttkTab) {
+  if (ttkTab && !ttkTab.dataset.bound) {
+    ttkTab.dataset.bound = '1';
     ttkTab.addEventListener('click', () => {
       if (!techcardsLoaded) {
         loadTechcards();
@@ -138,9 +124,9 @@ function initTechcards() {
     });
   }
 
-  // Если вдруг приложение стартует с ТТК — грузим сразу
+  // Если приложение стартует сразу с ТТК
   const activeTab = document.querySelector('.tab-btn.active');
-  if (activeTab && activeTab.dataset.tab === 'techcards') {
+  if (activeTab && activeTab.dataset.tab === 'techcards' && !techcardsLoaded) {
     loadTechcards();
   }
 }
