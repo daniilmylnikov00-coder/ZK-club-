@@ -376,6 +376,10 @@ window.onLoginSuccess = async function() {
   await loadFromServer();
   updateFabVisibility('inventory');
   startAutoSync();
+
+  if (typeof initTechcards === 'function') {
+    initTechcards();
+  }
 };
 
 // ============================================
