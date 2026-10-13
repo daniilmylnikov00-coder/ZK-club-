@@ -244,6 +244,26 @@
       </div>
     </div>
 
+<!-- МОДАЛКА: ШАГ ПРИГОТОВЛЕНИЯ -->
+    <div id="step-modal" class="modal hidden">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h2 id="step-modal-title">Шаг</h2>
+
+        <label>Описание шага</label>
+        <textarea id="step-text" rows="4" placeholder="Например: Обжарить тост 4 минуты до золотистой корочки" style="width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,0.04);color:var(--text);font-family:inherit;outline:none;resize:none;"></textarea>
+
+        <div class="modal-actions">
+          <button id="step-modal-delete" class="btn-danger-outline">Удалить</button>
+          <button id="step-modal-cancel" class="btn-secondary">Отмена</button>
+          <button id="step-modal-save" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Скрытый файл-инпут для фото блюда -->
+    <input type="file" id="cooking-photo-input" accept="image/*" style="display:none;">
+
     <nav class="tabbar">
       <button class="tab-btn active" data-tab="inventory">
         <div class="tab-icon">
