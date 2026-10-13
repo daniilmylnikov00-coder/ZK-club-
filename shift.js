@@ -1,20 +1,25 @@
 // ============================================
 //  СМЕНА — график 3/3 + редактирование
-//  Даниил: старт 11.10.2025
-//  Юра: старт 14.10.2025
+//  Старт цикла: 11 октября (текущий год)
+//  Даниил: 11, 12, 13 — работа
+//  Юра: сдвиг 3 дня (14, 15, 16 — работа)
 //  Смена: 13:00 → 01:00
 // ============================================
 
 const SHIFT_CONFIG = {
   daniil: {
     name: 'Даниил',
-    startDate: '2026-10-11',
+    startDay: 11,    // 11 октября (текущий год)
+    startMonth: 10,  // Октябрь (0-based в JS: 9, но тут для читаемости 10 = октябрь)
+    shift: 0,        // без сдвига
     timeFrom: '13:00',
     timeTo: '01:00'
   },
   yura: {
     name: 'Юра',
-    startDate: '2026-10-14',
+    startDay: 14,    // 14 октября — первый рабочий
+    startMonth: 10,
+    shift: 0,
     timeFrom: '13:00',
     timeTo: '01:00'
   }
@@ -26,8 +31,6 @@ const WORK_DAYS = 3;
 let currentShiftPerson = 'daniil';
 let shiftSelectedDate = null;
 let currentCalendarMonth = null;
-
-// Список ручных правок из Supabase: [{person, date, status}]
 let shiftOverrides = [];
 let shiftSyncTimer = null;
 
@@ -35,9 +38,17 @@ let shiftSyncTimer = null;
 //  ЛОГИКА ГРАФИКА
 // ============================================
 
-function parseDate(str) {
-  const [y, m, d] = str.split('-').map(Number);
-  return new Date(y, m - 1, d);
+function today() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+// Стартовая дата цикла для конкретного человека (текущий год)
+function getStartDate(personKey) {
+  const cfg = SHIFT_CONFIG[personKey];
+  if (!cfg) return null;
+  const now = new Date();
+  return new Date(now.getFullYear(), cfg.startMonth - 1, cfg.startDay);
 }
 
 function daysBetween(a, b) {
@@ -47,40 +58,44 @@ function daysBetween(a, b) {
   return Math.round((b0 - a0) / MS);
 }
 
-// Проверяет: есть ли ручная правка для (person, date)
+function dateToKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// Ручная правка из БД
 function getOverride(person, date) {
-  const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const key = dateToKey(date);
   return shiftOverrides.find(o => o.person === person && o.date === key) || null;
 }
 
-// Итоговый статус дня — ручная правка перебивает график
+function hasOverride(personKey, date) {
+  return !!getOverride(personKey, date);
+}
+
+// Итоговый статус дня
 function isWorkDay(personKey, date) {
   const override = getOverride(personKey, date);
   if (override) return override.status === 'work';
 
   const cfg = SHIFT_CONFIG[personKey];
   if (!cfg) return false;
-  const start = parseDate(cfg.startDate);
+  const start = getStartDate(personKey);
   const diff = daysBetween(start, date);
   if (diff < 0) return false;
   const posInCycle = ((diff % CYCLE) + CYCLE) % CYCLE;
   return posInCycle < WORK_DAYS;
 }
 
-// Помечен ли день как «ручная правка»
-function hasOverride(personKey, date) {
-  return !!getOverride(personKey, date);
-}
-
+// Позиция в цикле (1..6)
 function dayInCycle(personKey, date) {
-  const cfg = SHIFT_CONFIG[personKey];
-  if (!cfg) return 0;
-  const start = parseDate(cfg.startDate);
+  const start = getStartDate(personKey);
+  if (!start) return 0;
   const diff = daysBetween(start, date);
   if (diff < 0) return 0;
   return (((diff % CYCLE) + CYCLE) % CYCLE) + 1;
 }
 
+// Сколько осталось в текущем блоке (работы или выходных)
 function daysLeftInBlock(personKey, date) {
   const inCycle = dayInCycle(personKey, date);
   if (inCycle === 0) return 0;
@@ -96,20 +111,11 @@ const WEEKDAYS_RU = ['воскресенье', 'понедельник', 'вто
 const MONTHS_RU = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const MONTHS_RU_NOM = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
-function today() {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
 function formatLongDate(date) {
   const wd = WEEKDAYS_RU[date.getDay()];
   const day = date.getDate();
   const month = MONTHS_RU[date.getMonth()];
   return `${wd.charAt(0).toUpperCase() + wd.slice(1)}, ${day} ${month}`;
-}
-
-function dateToKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 // ============================================
@@ -180,7 +186,6 @@ function renderShift() {
       const date = new Date(y, m, d);
       shiftSelectedDate = date;
 
-      // Если можно редактировать — открываем модалку
       if (canEditShift()) {
         openShiftEditModal(date);
       } else {
@@ -335,9 +340,6 @@ async function setShiftOverride(status) {
   const person = modal.dataset.person;
   const date = modal.dataset.date;
 
-  // Если статус совпадает с автоматическим — сохраняем как override всё равно
-  // (это защита от того, что график может быть сдвинут позже)
-
   try {
     const { error } = await window.db
       .from('shift_overrides')
@@ -390,7 +392,7 @@ async function deleteShiftOverride() {
 }
 
 // ============================================
-//  ЗАГРУЗКА ПРАВОК ИЗ SUPABASE
+//  СИНХРОНИЗАЦИЯ
 // ============================================
 
 async function loadShiftOverrides() {
@@ -451,12 +453,10 @@ async function initShift() {
   renderShift();
   startShiftSync();
 
-  // Обработчики модалки — один раз
   const modal = document.getElementById('shift-edit-modal');
   if (modal && !modal.dataset.bound) {
     modal.dataset.bound = '1';
 
-    // Тап по фону — закрыть
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeShiftEditModal();
     });
