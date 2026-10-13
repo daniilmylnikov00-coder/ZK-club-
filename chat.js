@@ -65,7 +65,6 @@ function openChannel(channel) {
   currentChannel = channel;
 
   if (channel === 'chat') {
-    // Пока только этот канал работает
     document.getElementById('chat-channels-view').classList.add('hidden');
     document.getElementById('chat-messages-view').classList.remove('hidden');
     document.getElementById('chat-view-title').textContent = 'Общение поваров';
@@ -73,7 +72,6 @@ function openChannel(channel) {
     loadMessages();
     startChatSync();
   } else {
-    // Остальные каналы — заглушка
     alert('Этот канал в разработке. Скоро будет.');
   }
 }
@@ -84,6 +82,8 @@ function closeChannel() {
 
   document.getElementById('chat-messages-view').classList.add('hidden');
   document.getElementById('chat-channels-view').classList.remove('hidden');
+
+  document.body.classList.remove('keyboard-open');
 
   chatMessages = [];
   lastRenderedId = null;
@@ -110,7 +110,6 @@ async function loadMessages() {
 
     const newMessages = data || [];
 
-    // Если ничего не изменилось — не перерисовываем (чтобы не дёргалось)
     if (newMessages.length > 0) {
       const lastId = newMessages[newMessages.length - 1].id;
       const lastCount = chatMessages.length;
@@ -170,7 +169,6 @@ function renderMessages() {
     `;
   }).join('');
 
-  // Прокручиваем вниз
   setTimeout(() => {
     listEl.scrollTop = listEl.scrollHeight;
   }, 50);
@@ -191,7 +189,6 @@ async function sendMessage() {
 
   input.value = '';
 
-  // Оптимистично добавляем в список (чтобы сразу увидеть)
   const tempMsg = {
     id: 'temp-' + Date.now(),
     channel: currentChannel,
@@ -214,14 +211,12 @@ async function sendMessage() {
 
     if (error) {
       console.error('Ошибка отправки:', error);
-      // Удаляем временное сообщение
       chatMessages = chatMessages.filter(m => m.id !== tempMsg.id);
       renderMessages();
       alert('Не удалось отправить сообщение');
       return;
     }
 
-    // Перезагружаем, чтобы получить настоящий id и время
     lastRenderedId = null;
     await loadMessages();
   } catch (e) {
@@ -281,6 +276,42 @@ function initChat() {
       if (currentChannel === 'chat') {
         loadMessages();
       }
+    });
+  }
+
+  // ============ КЛАВИАТУРА ============
+
+  // Основной способ — visualViewport
+  if (window.visualViewport && !window.visualViewport.dataset.bound) {
+    window.visualViewport.dataset.bound = '1';
+
+    const handleKeyboard = () => {
+      const vv = window.visualViewport;
+      const isKeyboard = window.innerHeight - vv.height > 100;
+      document.body.classList.toggle('keyboard-open', isKeyboard);
+    };
+
+    window.visualViewport.addEventListener('resize', handleKeyboard);
+    window.visualViewport.addEventListener('scroll', handleKeyboard);
+  }
+
+  // Резервный способ — фокус/блюр поля ввода
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput && !chatInput.dataset.focusBound) {
+    chatInput.dataset.focusBound = '1';
+
+    chatInput.addEventListener('focus', () => {
+      setTimeout(() => {
+        if (!document.body.classList.contains('keyboard-open')) {
+          document.body.classList.add('keyboard-open');
+        }
+      }, 300);
+    });
+
+    chatInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        document.body.classList.remove('keyboard-open');
+      }, 100);
     });
   }
 }
