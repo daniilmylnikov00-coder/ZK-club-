@@ -905,46 +905,43 @@ html {
 .channels-list {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  overflow-x: auto;
+  gap: 8px;
   padding: 4px 0 8px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
 }
-.channels-list::-webkit-scrollbar { display: none; }
 
 .channel-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.04);
   border: 1.5px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 12px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-  flex-shrink: 0;
-  width: 160px;
-  min-height: 130px;
-  scroll-snap-align: start;
+  flex: 1;
+  min-width: 0;
+  min-height: 110px;
 }
 
 .channel-emoji {
-  font-size: 30px;
+  font-size: 22px;
   line-height: 1;
   flex-shrink: 0;
 }
 
 .channel-info { flex: 1; min-width: 0; }
 .channel-name {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
+  line-height: 1.2;
 }
 .channel-desc {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--muted);
+  line-height: 1.2;
 }
 
 .channel-arrow {
