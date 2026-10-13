@@ -1876,3 +1876,128 @@ nav.tabbar .tab-btn.active svg {
 .ingredient-card.swiped .ingredient-card-inner {
   transform: translateX(-136px); /* 56px + 8px + 56px + 10px + 6px запас = 136 */
 }
+
+/* ============================================
+   ПРИГОТОВЛЕНИЕ
+   ============================================ */
+
+.cooking-dish-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cooking-dish-card:active {
+  background: rgba(255, 107, 26, 0.08);
+  border-color: rgba(255, 107, 26, 0.3);
+}
+
+.cooking-dish-info { flex: 1; min-width: 0; }
+.cooking-dish-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.cooking-dish-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cooking-dish-arrow {
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* Экран блюда */
+.cooking-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.cooking-dish-title {
+  font-size: 24px !important;
+  margin: 0 !important;
+}
+
+.cooking-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cooking-step {
+  display: flex;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.cooking-step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 107, 26, 0.4);
+}
+
+.cooking-step-text {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.45;
+  padding-top: 4px;
+}
+
+.cooking-empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--muted);
+  font-size: 14px;
+  background: var(--card);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+/* Фото готового блюда */
+.cooking-photo-block {
+  margin-top: 24px;
+  margin-bottom: 20px;
+}
+
+.cooking-photo-label {
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.cooking-photo {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
