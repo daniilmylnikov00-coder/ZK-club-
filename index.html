@@ -234,6 +234,21 @@
       </div>
     </div>
 
+<!-- МОДАЛКА: подтверждение удаления -->
+    <div id="delete-confirm-modal" class="modal hidden">
+      <div class="modal-sheet delete-sheet">
+        <div class="modal-handle"></div>
+        <div class="delete-icon">🗑️</div>
+        <h2 class="delete-title">Удалить ингредиент?</h2>
+        <p class="delete-text" id="delete-text">«Лук репчатый» будет удалён из склада. Это действие нельзя отменить.</p>
+
+        <div class="modal-actions">
+          <button id="delete-cancel" class="btn-secondary">Отмена</button>
+          <button id="delete-confirm" class="btn-danger">Удалить</button>
+        </div>
+      </div>
+    </div>
+
     <nav class="tabbar">
       <button class="tab-btn active" data-tab="inventory">
         <div class="tab-icon">
