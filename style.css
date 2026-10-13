@@ -1650,3 +1650,24 @@ nav.tabbar .tab-btn.active svg {
   z-index: 5 !important;
   flex-shrink: 0 !important;
 }
+
+/* ============================================
+   Страховка: модалка ВЫШЕ панели + место под кнопки
+   ============================================ */
+.modal {
+  z-index: 10000 !important;
+}
+
+.modal-sheet {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  max-height: 92dvh !important;
+}
+
+.modal-sheet .modal-actions {
+  margin-top: 20px !important;
+  margin-bottom: 0 !important;
+  position: static !important;
+  background: transparent !important;
+  padding: 0 !important;
+  z-index: auto !important;
+}
