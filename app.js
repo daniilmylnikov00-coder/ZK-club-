@@ -5,38 +5,15 @@ const { createClient } = supabase;
 window.db = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
 // ============================================
-//  ГЛОБАЛЬНЫЙ ФЛАГ — пользователь вводит текст
-// ============================================
-window.isUserTyping = false;
-
-document.addEventListener('focusin', (e) => {
-  const t = e.target;
-  if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) {
-    window.isUserTyping = true;
-  }
-});
-
-document.addEventListener('focusout', (e) => {
-  const t = e.target;
-  if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) {
-    // Небольшая задержка — чтобы изменение успело сохраниться
-    setTimeout(() => {
-      const active = document.activeElement;
-      if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'SELECT' && active.tagName !== 'TEXTAREA')) {
-        window.isUserTyping = false;
-      }
-    }, 200);
-  }
-});
-
-// ============================================
 //  СОСТОЯНИЕ
 // ============================================
 let ingredients = [];
 let currentUser = null;
 let filterText = '';
-let syncTimer = null;
 let isRendering = false;
+
+let dirtyQuantities = {};
+let dirtyUnits = {};
 
 // ============================================
 //  DOM
@@ -45,14 +22,12 @@ const listEl   = document.getElementById('ingredients-list');
 const searchEl = document.getElementById('search-input');
 const addBtn   = document.getElementById('add-btn');
 const modal    = document.getElementById('modal');
+const saveBtn  = document.getElementById('save-inventory-btn');
 
 // ============================================
 //  ЗАГРУЗКА ИЗ SUPABASE
 // ============================================
 async function loadFromServer() {
-  // Если пользователь что-то вводит — вообще не загружаем
-  if (window.isUserTyping) return;
-
   try {
     const { data, error } = await window.db
       .from('ingredients')
@@ -65,6 +40,11 @@ async function loadFromServer() {
       return;
     }
     ingredients = data || [];
+
+    dirtyQuantities = {};
+    dirtyUnits = {};
+
+    updateSaveButton();
     render();
   } catch (e) {
     console.error('Ошибка сети:', e);
@@ -72,36 +52,72 @@ async function loadFromServer() {
 }
 
 // ============================================
-//  СОХРАНЕНИЕ ИНГРЕДИЕНТА
+//  ЕСТЬ ЛИ НЕСОХРАНЁННЫЕ ИЗМЕНЕНИЯ
 // ============================================
-async function saveIngredient(item) {
-  const payload = {
-    id: item.id,
-    name: item.name,
-    category: item.category,
-    quantity: item.quantity,
-    unit: item.unit,
-    min_qty: item.min_qty,
-    updated_at: new Date().toISOString()
-  };
-
-  const { error } = await window.db
-    .from('ingredients')
-    .upsert(payload, { onConflict: 'id' });
-
-  if (error) console.error('Ошибка сохранения:', error);
+function hasUnsavedChanges() {
+  return Object.keys(dirtyQuantities).length > 0 || Object.keys(dirtyUnits).length > 0;
 }
 
-async function updateIngredientField(id, field, value) {
-  const update = { updated_at: new Date().toISOString() };
-  update[field] = value;
+// ============================================
+//  СОХРАНЕНИЕ ИЗМЕНЕНИЙ
+//  Конфликт: кто последний нажал «Сохранить» — тот и прав
+// ============================================
+async function saveChanges() {
+  const idsToUpdate = new Set([
+    ...Object.keys(dirtyQuantities),
+    ...Object.keys(dirtyUnits)
+  ]);
 
-  const { error } = await window.db
-    .from('ingredients')
-    .update(update)
-    .eq('id', id);
+  if (idsToUpdate.size === 0) return;
 
-  if (error) console.error('Ошибка обновления:', error);
+  const now = new Date().toISOString();
+
+  for (const id of idsToUpdate) {
+    const update = { updated_at: now };
+
+    if (dirtyQuantities[id] !== undefined) {
+      update.quantity = dirtyQuantities[id];
+    }
+    if (dirtyUnits[id] !== undefined) {
+      update.unit = dirtyUnits[id];
+    }
+
+    const { error } = await window.db
+      .from('ingredients')
+      .update(update)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Ошибка сохранения:', error);
+      alert('Не удалось сохранить изменения');
+      return;
+    }
+  }
+
+  ingredients.forEach(item => {
+    if (dirtyQuantities[item.id] !== undefined) {
+      item.quantity = dirtyQuantities[item.id];
+    }
+    if (dirtyUnits[item.id] !== undefined) {
+      item.unit = dirtyUnits[item.id];
+    }
+  });
+
+  dirtyQuantities = {};
+  dirtyUnits = {};
+
+  updateSaveButton();
+  render();
+
+  if (saveBtn) {
+    saveBtn.textContent = '✓ Сохранено';
+    saveBtn.classList.add('saved');
+    setTimeout(() => {
+      saveBtn.textContent = 'Сохранить';
+      saveBtn.classList.remove('saved');
+      updateSaveButton();
+    }, 1500);
+  }
 }
 
 // ============================================
@@ -130,9 +146,6 @@ function escapeHtml(str) {
 
 function render() {
   if (isRendering) return;
-  // Если пользователь вводит — не трогаем список
-  if (window.isUserTyping) return;
-
   isRendering = true;
 
   const filtered = ingredients.filter(i =>
@@ -153,10 +166,26 @@ function render() {
     return;
   }
 
+  const activeEl = document.activeElement;
+  const activeId = activeEl && activeEl.dataset ? activeEl.dataset.id : null;
+  const activeClass = activeEl && activeEl.classList.contains('qty-input') ? 'qty'
+                    : (activeEl && activeEl.classList.contains('unit-select') ? 'unit' : null);
+  const selStart = activeEl && activeEl.selectionStart !== undefined ? activeEl.selectionStart : null;
+
   listEl.innerHTML = filtered.map(item => {
     const isLow = item.min_qty > 0 && item.quantity <= item.min_qty;
+    const isDirtyQty = dirtyQuantities[item.id] !== undefined;
+    const isDirtyUnit = dirtyUnits[item.id] !== undefined;
+    const isDirty = isDirtyQty || isDirtyUnit;
+
+    const qtyValue = isDirtyQty
+      ? (item.unit === 'kg' || item.unit === 'l' ? dirtyQuantities[item.id] / 1000 : dirtyQuantities[item.id])
+      : displayQty(item).replace(/\s(кг|г|мл|л|шт)$/, '');
+
+    const displayUnit = isDirtyUnit ? dirtyUnits[item.id] : item.unit;
+
     return `
-      <div class="ingredient-card${isLow ? ' low' : ''}" data-id="${item.id}">
+      <div class="ingredient-card${isLow ? ' low' : ''}${isDirty ? ' dirty' : ''}" data-id="${item.id}">
         <div class="ingredient-info">
           <div class="ingredient-name">${escapeHtml(item.name)}</div>
           <div class="ingredient-category">${escapeHtml(item.category)}</div>
@@ -165,31 +194,54 @@ function render() {
           <input
             type="text"
             inputmode="decimal"
-            class="qty-input${isLow ? ' low' : ''}"
+            class="qty-input${isLow ? ' low' : ''}${isDirtyQty ? ' dirty' : ''}"
             data-id="${item.id}"
-            value="${displayQty(item).replace(/\s(кг|г|мл|л|шт)$/, '')}"
+            value="${qtyValue}"
             placeholder="0"
           >
-          <select class="unit-select" data-id="${item.id}">
-            <option value="g"  ${item.unit === 'g'   ? 'selected' : ''}>г</option>
-            <option value="kg" ${item.unit === 'kg'  ? 'selected' : ''}>кг</option>
-            <option value="ml" ${item.unit === 'ml'  ? 'selected' : ''}>мл</option>
-            <option value="l"  ${item.unit === 'l'   ? 'selected' : ''}>л</option>
-            <option value="pcs"${item.unit === 'pcs' ? 'selected' : ''}>шт</option>
+          <select class="unit-select${isDirtyUnit ? ' dirty' : ''}" data-id="${item.id}">
+            <option value="g"  ${displayUnit === 'g'   ? 'selected' : ''}>г</option>
+            <option value="kg" ${displayUnit === 'kg'  ? 'selected' : ''}>кг</option>
+            <option value="ml" ${displayUnit === 'ml'  ? 'selected' : ''}>мл</option>
+            <option value="l"  ${displayUnit === 'l'   ? 'selected' : ''}>л</option>
+            <option value="pcs"${displayUnit === 'pcs' ? 'selected' : ''}>шт</option>
           </select>
         </div>
       </div>
     `;
   }).join('');
 
+  if (activeId && activeClass) {
+    const selector = activeClass === 'qty'
+      ? `.qty-input[data-id="${activeId}"]`
+      : `.unit-select[data-id="${activeId}"]`;
+    const el = listEl.querySelector(selector);
+    if (el) {
+      el.focus();
+      if (selStart !== null && el.setSelectionRange) {
+        try { el.setSelectionRange(selStart, selStart); } catch (e) {}
+      }
+    }
+  }
+
   isRendering = false;
+}
+
+function updateSaveButton() {
+  if (!saveBtn) return;
+  if (hasUnsavedChanges()) {
+    saveBtn.classList.add('active');
+    saveBtn.disabled = false;
+  } else {
+    saveBtn.classList.remove('active');
+    saveBtn.disabled = true;
+  }
 }
 
 // ============================================
 //  СОБЫТИЯ СПИСКА
 // ============================================
 
-// Поиск
 if (searchEl) {
   searchEl.addEventListener('input', e => {
     filterText = e.target.value.toLowerCase().trim();
@@ -197,54 +249,69 @@ if (searchEl) {
   });
 }
 
-// Изменение количества / единицы
-listEl.addEventListener('change', async e => {
+listEl.addEventListener('input', e => {
   const input = e.target.closest('.qty-input');
-  const select = e.target.closest('.unit-select');
+  if (!input) return;
 
-  if (input) {
-    const id = input.dataset.id;
-    const item = ingredients.find(i => i.id === id);
-    if (!item) return;
+  const id = input.dataset.id;
+  const item = ingredients.find(i => i.id === id);
+  if (!item) return;
 
-    const raw = input.value.replace(',', '.').replace(/[^\d.\-]/g, '');
-    const num = parseFloat(raw) || 0;
+  const raw = input.value.replace(',', '.').replace(/[^\d.\-]/g, '');
+  const num = parseFloat(raw) || 0;
 
-    let baseQty;
-    if (item.unit === 'kg' || item.unit === 'l') {
-      baseQty = num * 1000;
-    } else {
-      baseQty = num;
-    }
-
-    item.quantity = baseQty;
-    await updateIngredientField(id, 'quantity', baseQty);
-    render();
+  const currentUnit = dirtyUnits[id] || item.unit;
+  let baseQty;
+  if (currentUnit === 'kg' || currentUnit === 'l') {
+    baseQty = num * 1000;
+  } else {
+    baseQty = num;
   }
 
-  if (select) {
-    const id = select.dataset.id;
-    const item = ingredients.find(i => i.id === id);
-    if (!item) return;
-    item.unit = select.value;
-    await updateIngredientField(id, 'unit', select.value);
-    render();
-  }
+  dirtyQuantities[id] = baseQty;
+  input.classList.add('dirty');
+  const card = input.closest('.ingredient-card');
+  if (card) card.classList.add('dirty');
+  updateSaveButton();
 });
 
-// Enter — закрыть клавиатуру
+listEl.addEventListener('change', e => {
+  const select = e.target.closest('.unit-select');
+  if (!select) return;
+
+  const id = select.dataset.id;
+  const item = ingredients.find(i => i.id === id);
+  if (!item) return;
+
+  const newUnit = select.value;
+  dirtyUnits[id] = newUnit;
+
+  // Пересчёт: если поменяли единицу — пересчитываем количество
+  const raw = (dirtyQuantities[id] !== undefined)
+    ? (item.unit === 'kg' || item.unit === 'l' ? dirtyQuantities[id] / 1000 : dirtyQuantities[id])
+    : null;
+
+  // Если количество ещё не менялось — оставляем как есть, только меняем единицу
+  select.classList.add('dirty');
+  const card = select.closest('.ingredient-card');
+  if (card) card.classList.add('dirty');
+  updateSaveButton();
+});
+
 listEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.closest('.qty-input')) {
     e.target.blur();
   }
 });
 
-// FAB → добавить
 if (addBtn) {
   addBtn.addEventListener('click', () => openEdit(null));
 }
 
-// Долгое нажатие — редактировать
+if (saveBtn) {
+  saveBtn.addEventListener('click', saveChanges);
+}
+
 listEl.addEventListener('contextmenu', e => {
   const card = e.target.closest('.ingredient-card');
   if (!card) return;
@@ -342,12 +409,33 @@ document.getElementById('modal-save')?.addEventListener('click', async () => {
     ingredients.push(item);
   }
 
-  await saveIngredient(item);
+  const payload = {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    quantity: item.quantity,
+    unit: item.unit,
+    min_qty: item.min_qty,
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await window.db
+    .from('ingredients')
+    .upsert(payload, { onConflict: 'id' });
+
+  if (error) {
+    console.error('Ошибка сохранения:', error);
+    alert('Не удалось сохранить');
+    return;
+  }
+
+  delete dirtyQuantities[item.id];
+  delete dirtyUnits[item.id];
+
   modal.classList.add('hidden');
   editingId = null;
 
-  // После закрытия модалки — принудительно перерисуем
-  window.isUserTyping = false;
+  updateSaveButton();
   render();
 });
 
@@ -365,11 +453,31 @@ function updateFabVisibility(tab) {
   if (!addBtn) return;
   if (tab === 'inventory') addBtn.classList.remove('hidden');
   else addBtn.classList.add('hidden');
+
+  if (saveBtn) {
+    if (tab === 'inventory') saveBtn.style.display = '';
+    else saveBtn.style.display = 'none';
+  }
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
+    const currentTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+
+    // Уходим со Склада с несохранёнными изменениями — спрашиваем
+    if (currentTab === 'inventory' && tab !== 'inventory' && hasUnsavedChanges()) {
+      const wantSave = confirm('Есть несохранённые изменения.\n\nOK — сохранить и перейти\nОтмена — не сохранять');
+      if (wantSave) {
+        saveChanges();
+      } else {
+        // Не сохраняем — сбрасываем
+        dirtyQuantities = {};
+        dirtyUnits = {};
+        updateSaveButton();
+      }
+    }
+
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
@@ -380,17 +488,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 // ============================================
-//  АВТОСИНХРОНИЗАЦИЯ (каждые 3 секунды)
-// ============================================
-function startAutoSync() {
-  if (syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(loadFromServer, 3000);
-}
-
-// ============================================
 //  ВЫХОД
 // ============================================
 function logout() {
+  if (hasUnsavedChanges()) {
+    const wantSave = confirm('Есть несохранённые изменения.\n\nOK — сохранить и выйти\nОтмена — выйти без сохранения');
+    if (wantSave) {
+      saveChanges();
+    }
+  }
   if (!confirm('Выйти из аккаунта?')) return;
   clearUserSession();
   currentUser = null;
@@ -408,22 +514,15 @@ window.onLoginSuccess = async function() {
 
   await loadFromServer();
   updateFabVisibility('inventory');
-  startAutoSync();
 
   const nameEl = document.getElementById('user-name-display');
   if (nameEl && currentUser) {
     nameEl.textContent = currentUser.name;
   }
 
-  if (typeof initTechcards === 'function') {
-    initTechcards();
-  }
-  if (typeof initChat === 'function') {
-    initChat();
-  }
-  if (typeof initShift === 'function') {
-    initShift();
-  }
+  if (typeof initTechcards === 'function') initTechcards();
+  if (typeof initChat === 'function') initChat();
+  if (typeof initShift === 'function') initShift();
 };
 
 // ============================================
