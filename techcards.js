@@ -1,13 +1,20 @@
 // ============================================
-//  РАЗДЕЛ ТТК — аккордеон
+//  РАЗДЕЛ ТТК — двухуровневый аккордеон
+//  Уровень 1: Блюда / Заготовки
+//  Уровень 2: список блюд (тоже раскрываются)
 // ============================================
 
 let dishes = [];
 let dishIngredients = [];
 let techcardsLoaded = false;
-let openDishId = null;
 
-// Загрузка из Supabase
+// Состояния раскрытия
+let openSection = null;    // 'dishes' | 'prep' | null
+let openDishId = null;     // id блюда, у которого раскрыты ингредиенты
+
+// ============================================
+//  ЗАГРУЗКА ИЗ SUPABASE
+// ============================================
 async function loadTechcards() {
   try {
     const [dishesRes, ingRes] = await Promise.all([
@@ -27,7 +34,7 @@ async function loadTechcards() {
     dishes = dishesRes.data || [];
     dishIngredients = ingRes.data || [];
     techcardsLoaded = true;
-    renderDishes();
+    renderTechcards();
   } catch (e) {
     console.error('Ошибка сети:', e);
   }
@@ -39,13 +46,82 @@ function escapeHtmlTtk(str) {
   return div.innerHTML;
 }
 
-function renderDishes() {
+// ============================================
+//  ОТРИСОВКА
+// ============================================
+function renderTechcards() {
   const listEl = document.getElementById('dishes-list');
   if (!listEl) return;
 
+  listEl.innerHTML = '';
+
+  // ===== СЕКЦИЯ 1: БЛЮДА =====
+  const dishesOpen = openSection === 'dishes';
+  const dishesSection = document.createElement('div');
+  dishesSection.className = 'ttk-section' + (dishesOpen ? ' open' : '');
+  dishesSection.innerHTML = `
+    <div class="ttk-section-header" data-section="dishes">
+      <span class="ttk-section-emoji">🍽</span>
+      <span class="ttk-section-name">Блюда</span>
+      <svg class="ttk-section-arrow" viewBox="0 0 24 24" fill="none">
+        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="ttk-section-body">
+      ${renderDishesInside()}
+    </div>
+  `;
+  listEl.appendChild(dishesSection);
+
+  // ===== СЕКЦИЯ 2: ЗАГОТОВКИ =====
+  const prepOpen = openSection === 'prep';
+  const prepSection = document.createElement('div');
+  prepSection.className = 'ttk-section' + (prepOpen ? ' open' : '');
+  prepSection.innerHTML = `
+    <div class="ttk-section-header" data-section="prep">
+      <span class="ttk-section-emoji">🥫</span>
+      <span class="ttk-section-name">Заготовки</span>
+      <svg class="ttk-section-arrow" viewBox="0 0 24 24" fill="none">
+        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="ttk-section-body">
+      <div class="ttk-empty">Скоро</div>
+    </div>
+  `;
+  listEl.appendChild(prepSection);
+
+  // Навешиваем обработчики
+  listEl.querySelectorAll('.ttk-section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const section = header.dataset.section;
+      if (openSection === section) {
+        openSection = null;
+      } else {
+        openSection = section;
+      }
+      renderTechcards();
+    });
+  });
+
+  // Обработчики на блюда (только внутри открытой секции «Блюда»)
+  listEl.querySelectorAll('.dish-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const dishId = card.dataset.id;
+      if (openDishId === dishId) {
+        openDishId = null;
+      } else {
+        openDishId = dishId;
+      }
+      renderTechcards();
+    });
+  });
+}
+
+// Внутренний список блюд (категории + карточки)
+function renderDishesInside() {
   if (dishes.length === 0) {
-    listEl.innerHTML = '<div class="empty-state">Блюда не загружены</div>';
-    return;
+    return '<div class="ttk-empty">Блюда не загружены</div>';
   }
 
   // Группировка по категориям
@@ -88,31 +164,13 @@ function renderDishes() {
     });
   });
 
-  listEl.innerHTML = html;
+  return html;
 }
 
-// Тап на блюдо — раскрыть/закрыть
-function toggleDish(dishId) {
-  if (openDishId === dishId) {
-    openDishId = null;
-  } else {
-    openDishId = dishId;
-  }
-  renderDishes();
-}
-
-// Инициализация
+// ============================================
+//  ИНИЦИАЛИЗАЦИЯ
+// ============================================
 function initTechcards() {
-  const listEl = document.getElementById('dishes-list');
-  if (listEl && !listEl.dataset.bound) {
-    listEl.dataset.bound = '1';
-    listEl.addEventListener('click', (e) => {
-      const card = e.target.closest('.dish-card');
-      if (!card) return;
-      toggleDish(card.dataset.id);
-    });
-  }
-
   // Загружаем при первом открытии вкладки ТТК
   const ttkTab = document.querySelector('.tab-btn[data-tab="techcards"]');
   if (ttkTab && !ttkTab.dataset.bound) {
