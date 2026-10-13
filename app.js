@@ -15,14 +15,11 @@ let isRendering = false;
 let dirtyQuantities = {};
 let dirtyUnits = {};
 
-// Для модалки «несохранённые изменения»
 let unsavedAction = null;
 let pendingTabSwitch = null;
 
-// Для модалки удаления
 let deleteTargetId = null;
 
-// Для свайпа
 let swipeState = {
   activeCard: null,
   startX: 0,
@@ -42,7 +39,7 @@ const modal    = document.getElementById('modal');
 const saveBtn  = document.getElementById('save-inventory-btn');
 
 // ============================================
-//  КТО МОЖЕТ УДАЛЯТЬ/МЕНЯТЬ
+//  ПРАВА
 // ============================================
 function canEdit() {
   if (!currentUser) return false;
@@ -77,7 +74,7 @@ async function loadFromServer() {
 }
 
 // ============================================
-//  ЕСТЬ ЛИ НЕСОХРАНЁННЫЕ
+//  НЕСОХРАНЁННЫЕ
 // ============================================
 function hasUnsavedChanges() {
   return Object.keys(dirtyQuantities).length > 0 || Object.keys(dirtyUnits).length > 0;
@@ -286,7 +283,6 @@ function updateSaveButton() {
 // ============================================
 //  МОДАЛКА: НЕСОХРАНЁННЫЕ
 // ============================================
-
 function openUnsavedModal(action) {
   unsavedAction = action;
   const m = document.getElementById('unsaved-modal');
@@ -348,9 +344,8 @@ function closeUnsavedModal() {
 })();
 
 // ============================================
-//  МОДАЛКА: ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ
+//  МОДАЛКА: УДАЛЕНИЕ
 // ============================================
-
 function openDeleteModal(id) {
   const item = ingredients.find(i => i.id === id);
   if (!item) return;
@@ -411,8 +406,6 @@ async function confirmDelete() {
 // ============================================
 //  СВАЙП
 // ============================================
-
-// Возвращаем все карточки в исходное
 function closeAllSwipes() {
   listEl.querySelectorAll('.ingredient-card.swiped').forEach(c => {
     c.classList.remove('swiped');
@@ -420,22 +413,16 @@ function closeAllSwipes() {
   swipeState.activeCard = null;
 }
 
-// Начало касания
 listEl.addEventListener('touchstart', (e) => {
   if (!canEdit()) return;
 
   const card = e.target.closest('.ingredient-card');
   if (!card) return;
 
-  // Игнорируем свайп по инпутам и по кнопкам
   if (e.target.closest('.qty-input-wrap')) return;
   if (e.target.closest('.ingredient-swipe-actions')) return;
 
-  // Если есть несохранённые изменения — блокируем свайп
-  if (hasUnsavedChanges()) {
-    // Покажем модалку или просто ничего не делаем
-    return;
-  }
+  if (hasUnsavedChanges()) return;
 
   const touch = e.touches[0];
   swipeState.startX = touch.clientX;
@@ -446,7 +433,6 @@ listEl.addEventListener('touchstart', (e) => {
   swipeState.lockedVertical = false;
 }, { passive: true });
 
-// Движение
 listEl.addEventListener('touchmove', (e) => {
   if (!swipeState.activeCard) return;
 
@@ -454,10 +440,8 @@ listEl.addEventListener('touchmove', (e) => {
   const dx = touch.clientX - swipeState.startX;
   const dy = touch.clientY - swipeState.startY;
 
-  // Проверяем направление
   if (!swipeState.lockedVertical) {
     if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
-      // Это вертикальный скролл — отменяем свайп
       swipeState.activeCard = null;
       return;
     }
@@ -469,14 +453,11 @@ listEl.addEventListener('touchmove', (e) => {
 
   if (!swipeState.isDragging) return;
 
-  // Сдвигаем карточку
   const inner = swipeState.activeCard.querySelector('.ingredient-card-inner');
   if (!inner) return;
 
-  // Ограничиваем движение: только влево
   let offset = Math.min(0, Math.max(-168, dx));
 
-  // Если карточка уже открыта — учитываем
   if (swipeState.activeCard.classList.contains('swiped')) {
     offset = Math.min(0, Math.max(-168, -168 + dx));
   }
@@ -485,7 +466,6 @@ listEl.addEventListener('touchmove', (e) => {
   inner.style.transform = `translateX(${offset}px)`;
 }, { passive: true });
 
-// Конец касания
 listEl.addEventListener('touchend', (e) => {
   if (!swipeState.activeCard) return;
 
@@ -494,7 +474,6 @@ listEl.addEventListener('touchend', (e) => {
   swipeState.activeCard = null;
 
   if (!swipeState.isDragging) {
-    // Просто тап — закрываем все открытые свайпы
     closeAllSwipes();
     return;
   }
@@ -511,14 +490,12 @@ listEl.addEventListener('touchend', (e) => {
   const THRESHOLD = 40;
 
   if (wasSwiped) {
-    // Если тянем вправо — закрываем
     if (dx > THRESHOLD) {
       card.classList.remove('swiped');
     } else {
       card.classList.add('swiped');
     }
   } else {
-    // Если тянем влево — открываем
     if (dx < -THRESHOLD) {
       closeAllSwipes();
       card.classList.add('swiped');
@@ -531,7 +508,6 @@ listEl.addEventListener('touchend', (e) => {
   swipeState.lockedVertical = false;
 }, { passive: true });
 
-// Клик по кнопкам свайпа
 listEl.addEventListener('click', (e) => {
   const btn = e.target.closest('.swipe-btn');
   if (!btn) return;
@@ -547,7 +523,6 @@ listEl.addEventListener('click', (e) => {
   }
 });
 
-// Клик вне карточки — закрываем свайпы
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.ingredient-card')) {
     closeAllSwipes();
@@ -557,7 +532,6 @@ document.addEventListener('click', (e) => {
 // ============================================
 //  СОБЫТИЯ СПИСКА
 // ============================================
-
 if (searchEl) {
   searchEl.addEventListener('input', e => {
     filterText = e.target.value.toLowerCase().trim();
@@ -620,8 +594,6 @@ if (saveBtn) {
   saveBtn.addEventListener('click', saveChanges);
 }
 
-// Убрали contextmenu — теперь редактирование через свайп
-// Но оставим для совместимости на всякий случай
 listEl.addEventListener('contextmenu', e => {
   const card = e.target.closest('.ingredient-card');
   if (!card) return;
@@ -632,7 +604,7 @@ listEl.addEventListener('contextmenu', e => {
 });
 
 // ============================================
-//  МОДАЛКА РЕДАКТИРОВАНИЯ/ДОБАВЛЕНИЯ
+//  МОДАЛКА РЕДАКТИРОВАНИЯ
 // ============================================
 const modalTitle = document.getElementById('modal-title');
 const mName     = document.getElementById('m-name');
@@ -847,4 +819,8 @@ window.onLoginSuccess = async function() {
   if (isLoggedIn()) {
     window.onLoginSuccess();
   } else {
-    document.getElementById('login
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('app-screen').classList.add('hidden');
+    initLoginScreen();
+  }
+})();
