@@ -86,12 +86,35 @@
         <div id="dishes-list" class="dishes-list"></div>
       </section>
 
-      <section class="tab-view" id="tab-comments">
-        <h1 class="section-title">Комментарии</h1>
-        <p class="section-sub">Заметки смены</p>
-        <div class="placeholder">
-          <div class="placeholder-icon">💬</div>
-          <div class="placeholder-text">Раздел в разработке</div>
+     <section class="tab-view" id="tab-comments">
+        <!-- Список каналов -->
+        <div id="chat-channels-view">
+          <h1 class="section-title">Чат</h1>
+          <p class="section-sub">Каналы коммуникации</p>
+          <div id="channels-list" class="channels-list"></div>
+        </div>
+
+        <!-- Сообщения канала -->
+        <div id="chat-messages-view" class="hidden">
+          <div class="chat-view-header">
+            <button id="chat-back-btn" class="dish-back-btn" aria-label="Назад">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <h1 class="section-title" id="chat-view-title">Чат</h1>
+          </div>
+
+          <div id="chat-messages-list" class="chat-messages-list"></div>
+
+          <div class="chat-input-bar">
+            <input id="chat-input" type="text" placeholder="Сообщение…" autocomplete="off">
+            <button id="chat-send-btn" aria-label="Отправить">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l16-8-6 16-3-7-7-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </section>
 
