@@ -212,7 +212,7 @@ body {
   display: block;
 }
 
-/* Новый блок: имя + иконка */
+/* Имя + иконка */
 .user-chip {
   display: flex;
   align-items: center;
@@ -242,6 +242,8 @@ body {
   overflow-y: auto;
   padding: 8px 20px 140px;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+  touch-action: pan-y;
 }
 
 .tab-view { display: none; }
@@ -312,7 +314,7 @@ body {
 
 #search-input::placeholder { color: var(--muted); }
 
-/* Список */
+/* Список ингредиентов */
 .ingredients-list {
   display: flex;
   flex-direction: column;
@@ -526,7 +528,9 @@ body {
   border: 1px solid var(--border);
 }
 
-/* ============ НИЖНЯЯ ПАНЕЛЬ ============ */
+/* ============================================
+   НИЖНЯЯ ПАНЕЛЬ
+   ============================================ */
 .tabbar {
   position: fixed;
   left: 50%;
@@ -599,128 +603,14 @@ body {
 .content { scrollbar-width: none; }
 
 /* ============================================
-   ТТК — список блюд и карточка
-   ============================================ */
-
-.dishes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ttk-category {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 20px 0 4px;
-}
-.ttk-category:first-child { margin-top: 0; }
-
-.dish-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.dish-card:active {
-  background: rgba(255, 107, 26, 0.1);
-  border-color: rgba(255, 107, 26, 0.3);
-}
-
-.dish-info { flex: 1; min-width: 0; }
-.dish-name {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 3px;
-  color: var(--text);
-}
-.dish-meta {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.dish-arrow {
-  width: 20px;
-  height: 20px;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-
-/* Карточка блюда */
-.dish-view-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.dish-back-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.dish-back-btn svg { width: 20px; height: 20px; }
-.dish-back-btn:active { background: rgba(255, 107, 26, 0.15); }
-
-.dish-view-header .section-title {
-  font-size: 24px;
-  margin: 0;
-}
-
-.dish-ingredients-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.dish-ingredient {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 16px;
-}
-.dish-ingredient-name {
-  font-size: 15px;
-  color: var(--text);
-  flex: 1;
-  min-width: 0;
-}
-.dish-ingredient-amount {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--orange);
-  white-space: nowrap;
-}
-
-/* ============================================
    ТТК — двухуровневый аккордеон
    ============================================ */
-
 #dishes-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Верхний уровень: секции */
 .ttk-section {
   background: var(--card);
   border: 1px solid var(--border);
@@ -787,7 +677,6 @@ body {
   font-size: 14px;
 }
 
-/* Внутри секции Блюда — категории */
 .ttk-category {
   font-size: 12px;
   font-weight: 700;
@@ -798,7 +687,6 @@ body {
 }
 .ttk-category:first-child { margin-top: 0; }
 
-/* Карточка блюда (второй уровень аккордеона) */
 .dish-card {
   display: flex;
   flex-direction: column;
@@ -850,7 +738,6 @@ body {
   color: var(--orange);
 }
 
-/* Ингредиенты внутри блюда */
 .dish-body {
   max-height: 0;
   overflow: hidden;
@@ -890,15 +777,12 @@ body {
 /* ============================================
    Отключаем поведение браузера
    ============================================ */
-
-/* Запрещаем выделение текста (как в приложении) */
 * {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
 }
 
-/* Но поля ввода — оставляем выделяемыми (чтобы можно было редактировать) */
 input,
 textarea,
 select,
@@ -907,26 +791,13 @@ select,
   user-select: text;
 }
 
-/* Отключаем «резинку» при прокрутке */
-html, body {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Отключаем double-tap zoom */
 html {
   touch-action: manipulation;
-}
-
-/* Разрешаем вертикальную прокрутку в контенте */
-.content {
-  touch-action: pan-y;
 }
 
 /* ============================================
    ЧАТ — список каналов
    ============================================ */
-
 .channels-list {
   display: flex;
   flex-direction: row;
@@ -976,7 +847,6 @@ html {
 /* ============================================
    ЧАТ — экран сообщений
    ============================================ */
-
 .chat-view-header {
   display: flex;
   align-items: center;
@@ -1007,7 +877,7 @@ html {
 
 .chat-bubble {
   max-width: 78%;
-  min-width: 90px;   /* ← ЭТА */
+  min-width: 90px;
   padding: 10px 14px;
   border-radius: 18px;
   background: var(--card);
@@ -1043,58 +913,6 @@ html {
 .chat-msg.mine .chat-time { color: rgba(255, 255, 255, 0.75); }
 
 /* Поле ввода */
-.chat-input-bar {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  margin-top: 8px;
-  background: rgba(30, 30, 32, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  flex-shrink: 0;
-}
-
-/* ============================================
-   Чат открыт — фуллскрин (как в Telegram)
-   ============================================ */
-#tab-comments.chat-open {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
-  background:
-    radial-gradient(ellipse at top, rgba(255, 107, 26, 0.08), transparent 60%),
-    linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
-  overflow: hidden;
-}
-
-/* Прячем шапку и навигацию, когда чат открыт */
-body.chat-open .topbar,
-body.chat-open .tabbar {
-  display: none;
-}
-
-/* Скрываем список каналов, показываем сообщения */
-#tab-comments.chat-open #chat-channels-view {
-  display: none;
-}
-
-#tab-comments.chat-open #chat-messages-view {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-/* ============================================
-   ФИНАЛЬНЫЕ ФИКСЫ — чат
-   ============================================ */
-.content {
-  position: relative;
-}
-
 .chat-input-bar {
   display: flex;
   gap: 8px;
@@ -1141,6 +959,19 @@ body.chat-open .tabbar {
 .chat-input-bar button:active { transform: scale(0.92); }
 .chat-input-bar button svg { width: 22px; height: 22px; }
 
+/* Кнопка камеры */
+.chat-input-bar .photo-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--orange) !important;
+  border: 1px solid var(--border) !important;
+}
+.chat-input-bar .photo-btn:active {
+  background: rgba(255, 107, 26, 0.15) !important;
+}
+
+/* ============================================
+   Чат открыт — фуллскрин
+   ============================================ */
 #tab-comments.chat-open {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1156,9 +987,6 @@ body.chat-open .tabbar {
 
 body.chat-open {
   overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
 }
 
 body.chat-open .topbar,
@@ -1180,22 +1008,6 @@ body.chat-open .tabbar {
 /* ============================================
    ФОТО В ЧАТЕ
    ============================================ */
-
-/* Кнопка камеры */
-.chat-input-bar .photo-btn {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: var(--orange) !important;
-  border: 1px solid var(--border) !important;
-}
-.chat-input-bar .photo-btn:active {
-  background: rgba(255, 107, 26, 0.15) !important;
-}
-.chat-input-bar .photo-btn svg {
-  width: 22px !important;
-  height: 22px !important;
-}
-
-/* Сообщение с фото */
 .chat-photo {
   display: block;
   max-width: 240px;
@@ -1206,7 +1018,6 @@ body.chat-open .tabbar {
   background: rgba(0,0,0,0.2);
 }
 
-/* Модалка выбора источника */
 .photo-source {
   position: fixed;
   inset: 0;
