@@ -1044,3 +1044,37 @@ body.keyboard-open .chat-input-bar {
 body.keyboard-open .tabbar {
   display: none;
 }
+
+/* ============================================
+   Чат открыт — фуллскрин (как в Telegram)
+   ============================================ */
+#tab-comments.chat-open {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(ellipse at top, rgba(255, 107, 26, 0.08), transparent 60%),
+    linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%);
+  overflow: hidden;
+}
+
+/* Прячем шапку и навигацию, когда чат открыт */
+body.chat-open .topbar,
+body.chat-open .tabbar {
+  display: none;
+}
+
+/* Скрываем список каналов, показываем сообщения */
+#tab-comments.chat-open #chat-channels-view {
+  display: none;
+}
+
+#tab-comments.chat-open #chat-messages-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
