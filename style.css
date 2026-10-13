@@ -1020,7 +1020,7 @@ px.channel-card {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(4px + env(safe-area-inset-bottom));
+  bottom: calc(86px + env(safe-area-inset-bottom));
   width: calc(100% - 24px);
   max-width: 480px;
   display: flex;
