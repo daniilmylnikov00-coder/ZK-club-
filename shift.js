@@ -8,13 +8,13 @@
 const SHIFT_CONFIG = {
   daniil: {
     name: 'Даниил',
-    startDate: '2025-10-11',
+    startDate: '2026-10-11',
     timeFrom: '13:00',
     timeTo: '01:00'
   },
   yura: {
     name: 'Юра',
-    startDate: '2025-10-14',
+    startDate: '2026-10-14',
     timeFrom: '13:00',
     timeTo: '01:00'
   }
