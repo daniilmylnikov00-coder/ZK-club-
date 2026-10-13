@@ -2,17 +2,18 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ZK club КУХНЯ">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css?v=300">
+  <link rel="stylesheet" href="style.css?v=400">
   <title>ZK club КУХНЯ</title>
 </head>
 <body>
 
+  <!-- ЭКРАН ВХОДА -->
   <div id="login-screen" class="hidden">
     <div class="login-logo">ZK<span>club</span> <span class="sub">КУХНЯ</span></div>
     <div class="login-sub">Введите код доступа</div>
@@ -42,6 +43,7 @@
     </div>
   </div>
 
+  <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
   <div id="app-screen" class="hidden">
     <header class="topbar">
       <div class="logo">
@@ -80,21 +82,19 @@
         </div>
       </section>
 
-  <section class="tab-view" id="tab-techcards">
+      <section class="tab-view" id="tab-techcards">
         <h1 class="section-title">ТТК</h1>
         <p class="section-sub">Технологические карты</p>
         <div id="dishes-list" class="dishes-list"></div>
       </section>
 
-     <section class="tab-view" id="tab-comments">
-        <!-- Список каналов -->
+      <section class="tab-view" id="tab-comments">
         <div id="chat-channels-view">
           <h1 class="section-title">Чат</h1>
           <p class="section-sub">Каналы коммуникации</p>
           <div id="channels-list" class="channels-list"></div>
         </div>
 
-        <!-- Сообщения канала -->
         <div id="chat-messages-view" class="hidden">
           <div class="chat-view-header">
             <button id="chat-back-btn" class="dish-back-btn" aria-label="Назад">
@@ -108,7 +108,7 @@
           <div id="chat-messages-list" class="chat-messages-list"></div>
 
           <div class="chat-input-bar">
-            <input id="chat-input" type="text" placeholder="Сообщение…" autocomplete="off">
+            <input id="chat-input" type="text" placeholder="Сообщение…" autocomplete="off" autocorrect="off" spellcheck="false">
             <button id="chat-send-btn" aria-label="Отправить">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M4 12l16-8-6 16-3-7-7-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -226,6 +226,6 @@
   <script src="login.js"></script>
   <script src="app.js?v=9"></script>
   <script src="techcards.js?v=1"></script>
-  <script src="chat.js?v=1"></script>
+  <script src="chat.js?v=2"></script>
 </body>
 </html>
