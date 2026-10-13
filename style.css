@@ -243,7 +243,7 @@ body {
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 20px 140px;
+  padding: 8px 20px 110px;
   -webkit-overflow-scrolling: touch;
   position: relative;
   touch-action: pan-y;
@@ -528,7 +528,7 @@ body {
 }
 
 /* ============================================
-   НИЖНЯЯ ПАНЕЛЬ — FIXED (как было)
+   НИЖНЯЯ ПАНЕЛЬ
    ============================================ */
 .tabbar {
   position: fixed;
@@ -602,7 +602,7 @@ body {
 .content { scrollbar-width: none; }
 
 /* ============================================
-   ТТК
+   ТТК — двухуровневый аккордеон
    ============================================ */
 #dishes-list {
   display: flex;
@@ -795,7 +795,7 @@ html {
 }
 
 /* ============================================
-   ЧАТ
+   ЧАТ — список каналов
    ============================================ */
 .channels-list {
   display: flex;
@@ -843,6 +843,9 @@ html {
   display: none;
 }
 
+/* ============================================
+   ЧАТ — экран сообщений
+   ============================================ */
 .chat-view-header {
   display: flex;
   align-items: center;
@@ -995,6 +998,9 @@ html {
   display: none !important;
 }
 
+/* ============================================
+   Чат открыт — фуллскрин
+   ============================================ */
 #tab-comments.chat-open {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1028,6 +1034,9 @@ body.chat-open .tabbar {
   min-height: 0;
 }
 
+/* ============================================
+   ФОТО В ЧАТЕ
+   ============================================ */
 .chat-photo {
   display: block;
   max-width: 240px;
