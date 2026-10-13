@@ -1,36 +1,4 @@
 // ============================================
-//  ФИКС ВЫСОТЫ ЭКРАНА (iOS PWA — убирает щель снизу)
-// ============================================
-function setRealHeight() {
-  const h = window.innerHeight;
-  document.documentElement.style.setProperty('--app-height', h + 'px');
-  document.body.style.height = h + 'px';
-}
-
-window.addEventListener('resize', setRealHeight);
-window.addEventListener('orientationchange', setRealHeight);
-window.addEventListener('load', setRealHeight);
-setTimeout(setRealHeight, 50);
-setTimeout(setRealHeight, 300);
-setTimeout(setRealHeight, 1000);
-setRealHeight();
-
-// Пересчёт высоты при возврате в приложение
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    setRealHeight();
-    setTimeout(setRealHeight, 100);
-    setTimeout(setRealHeight, 500);
-  }
-});
-
-// Пересчёт при первом касании после возврата
-document.addEventListener('touchstart', function fixOnce() {
-  setRealHeight();
-  document.removeEventListener('touchstart', fixOnce);
-}, { once: true, passive: true });
-
-// ============================================
 //  ПОДКЛЮЧЕНИЕ К SUPABASE
 // ============================================
 const { createClient } = supabase;
