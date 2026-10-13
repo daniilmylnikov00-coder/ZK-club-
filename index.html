@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="ZK club КУХНЯ">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css?v=500">
+  <link rel="stylesheet" href="style.css?v=600">
   <title>ZK club КУХНЯ</title>
 </head>
 <body>
@@ -51,9 +51,9 @@
       </div>
       <button class="user-chip" aria-label="Выйти" onclick="logout()">
         <span class="user-name" id="user-name-display"></span>
-        <div class="icon-btn" style="background:transparent;border:none;">
-          <svg viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+        <div class="icon"-btn" style="background:transparent;border:none;">
+          <svg viewBox="0 0  r="4" stroke24 24" fill="none">
+            <circle cx="12" cy="8="currentColor" stroke-width="2"/>
             <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
@@ -96,14 +96,12 @@
 
       <!-- ЧАТ -->
       <section class="tab-view" id="tab-comments">
-        <!-- Список каналов -->
         <div id="chat-channels-view">
           <h1 class="section-title">Чат</h1>
           <p class="section-sub">Каналы коммуникации</p>
           <div id="channels-list" class="channels-list"></div>
         </div>
 
-        <!-- Сообщения канала -->
         <div id="chat-messages-view" class="hidden">
           <div class="chat-view-header">
             <button id="chat-back-btn" class="dish-back-btn" aria-label="Назад">
@@ -153,7 +151,7 @@
       </svg>
     </button>
 
-    <!-- МОДАЛКА -->
+    <!-- МОДАЛКА: ингредиент -->
     <div id="modal" class="modal hidden">
       <div class="modal-sheet">
         <div class="modal-handle"></div>
@@ -187,6 +185,31 @@
         <div class="modal-actions">
           <button id="modal-cancel" class="btn-secondary">Отмена</button>
           <button id="modal-save" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- МОДАЛКА: добавить блюдо / заготовку -->
+    <div id="add-dish-modal" class="modal hidden">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h2 id="add-dish-title">Новое блюдо</h2>
+
+        <label>Название</label>
+        <input id="add-dish-name" type="text" placeholder="Например, Шаурма">
+
+        <label>Категория</label>
+        <input id="add-dish-category" type="text" placeholder="Сэндвичи" list="add-dish-cat-list">
+        <datalist id="add-dish-cat-list"></datalist>
+
+        <label>Ингредиенты</label>
+        <div id="add-dish-ingredients" class="add-ingredients"></div>
+
+        <button id="add-dish-add-ing" class="add-ing-btn">+ Добавить ингредиент</button>
+
+        <div class="modal-actions">
+          <button id="add-dish-cancel" class="btn-secondary">Отмена</button>
+          <button id="add-dish-save" class="btn-primary">Сохранить</button>
         </div>
       </div>
     </div>
@@ -246,7 +269,7 @@
   <script src="config.js"></script>
   <script src="login.js"></script>
   <script src="app.js?v=9"></script>
-  <script src="techcards.js?v=1"></script>
+  <script src="techcards.js?v=2"></script>
   <script src="chat.js?v=2"></script>
 </body>
 </html>
