@@ -380,6 +380,9 @@ window.onLoginSuccess = async function() {
   if (typeof initTechcards === 'function') {
     initTechcards();
   }
+  if (typeof initChat === 'function') {
+    initChat();
+  }
 };
 
 // ============================================
