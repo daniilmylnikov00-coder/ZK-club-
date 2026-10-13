@@ -684,3 +684,180 @@ body {
   color: var(--orange);
   white-space: nowrap;
 }
+
+/* ============================================
+   ТТК — двухуровневый аккордеон
+   ============================================ */
+
+#dishes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Верхний уровень: секции */
+.ttk-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+}
+.ttk-section.open {
+  border-color: rgba(255, 107, 26, 0.35);
+  background: rgba(255, 107, 26, 0.04);
+}
+
+.ttk-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.ttk-section-header:active {
+  background: rgba(255, 107, 26, 0.1);
+}
+
+.ttk-section-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.ttk-section-name {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ttk-section-arrow {
+  width: 22px;
+  height: 22px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform 0.25s ease, color 0.2s;
+}
+.ttk-section.open .ttk-section-arrow {
+  transform: rotate(180deg);
+  color: var(--orange);
+}
+
+.ttk-section-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.ttk-section.open .ttk-section-body {
+  max-height: 5000px;
+  padding: 0 12px 12px;
+}
+
+.ttk-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Внутри секции Блюда — категории */
+.ttk-category {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 16px 0 6px;
+}
+.ttk-category:first-child { margin-top: 0; }
+
+/* Карточка блюда (второй уровень аккордеона) */
+.dish-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.dish-card.open {
+  border-color: rgba(255, 107, 26, 0.4);
+  background: rgba(255, 107, 26, 0.05);
+}
+
+.dish-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  transition: background 0.15s;
+}
+.dish-header:active {
+  background: rgba(255, 107, 26, 0.1);
+}
+
+.dish-info { flex: 1; min-width: 0; }
+.dish-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.dish-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dish-arrow {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform 0.25s ease, color 0.2s;
+}
+.dish-card.open .dish-arrow {
+  transform: rotate(90deg);
+  color: var(--orange);
+}
+
+/* Ингредиенты внутри блюда */
+.dish-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dish-card.open .dish-body {
+  max-height: 800px;
+  padding: 0 10px 10px 10px;
+}
+
+.dish-ingredient {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.dish-ingredient-name {
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+.dish-ingredient-amount {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--orange);
+  white-space: nowrap;
+}
