@@ -908,13 +908,12 @@ html {
   gap: 10px;
 }
 
-px.channel-card {
+.channel-card {
   display: flex;
   align-items: center;
-  gap:;
-  color: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   padding: 16px;
   cursor: pointer;
@@ -922,7 +921,7 @@ px.channel-card {
 }
 .channel-card:active {
   background: rgba(255, 107, 26, 0.1);
-  border-color: rgba(255, 107, 26, 0.3);
+  border-color: rgba(255, 107, 26, 0.4);
 }
 
 .channel-emoji {
