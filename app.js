@@ -103,6 +103,14 @@ function escapeHtml(str) {
 
 function render() {
   if (isRendering) return;
+
+  // Если поле в фокусе (пользователь что-то вводит) — не перерисовываем,
+  // иначе клавиатура закроется и ввод пропадёт
+  const active = document.activeElement;
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
+    return;
+  }
+
   isRendering = true;
 
   const filtered = ingredients.filter(i =>
