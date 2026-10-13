@@ -1671,3 +1671,42 @@ nav.tabbar .tab-btn.active svg {
   padding: 0 !important;
   z-index: auto !important;
 }
+
+/* ============================================
+   МОДАЛКА: несохранённые изменения
+   ============================================ */
+
+.unsaved-sheet {
+  text-align: center;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+.unsaved-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin: 4px 0 12px;
+  filter: drop-shadow(0 0 18px rgba(255, 107, 26, 0.5));
+}
+
+.unsaved-title {
+  font-size: 19px !important;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px !important;
+}
+
+.unsaved-text {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.unsaved-sheet .modal-actions {
+  margin-top: 8px !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  position: static !important;
+}
