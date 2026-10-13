@@ -243,7 +243,7 @@ body {
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 20px 140px;
+  padding: 8px 20px 20px;
   -webkit-overflow-scrolling: touch;
   position: relative;
   touch-action: pan-y;
@@ -404,7 +404,7 @@ body {
 .fab {
   position: fixed;
   right: 20px;
-  bottom: calc(78px + env(safe-area-inset-bottom));
+  bottom: calc(90px + env(safe-area-inset-bottom));
   width: 54px;
   height: 54px;
   border-radius: 27px;
@@ -528,26 +528,21 @@ body {
 }
 
 /* ============================================
-   НИЖНЯЯ ПАНЕЛЬ
+   НИЖНЯЯ ПАНЕЛЬ — В ПОТОКЕ (не fixed)
    ============================================ */
 .tabbar {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(4px + env(safe-area-inset-bottom));
-  width: calc(100% - 24px);
-  max-width: 480px;
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 6px;
+  margin: 0 12px calc(4px + env(safe-area-inset-bottom)) 12px;
   background: rgba(30, 30, 32, 0.75);
   backdrop-filter: blur(30px) saturate(200%);
   -webkit-backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  z-index: 100;
+  flex-shrink: 0;
 }
 
 .tab-btn {
@@ -939,7 +934,6 @@ html {
 }
 .chat-msg.mine .chat-time { color: rgba(255, 255, 255, 0.75); }
 
-/* Поле ввода */
 .chat-input-bar {
   display: flex;
   gap: 8px;
@@ -995,7 +989,6 @@ html {
   background: rgba(255, 107, 26, 0.15) !important;
 }
 
-/* Скрытый file-инпут — на всякий случай */
 #chat-photo-input {
   display: none !important;
 }
@@ -1187,3 +1180,34 @@ body.chat-open .tabbar {
   height: 36px;
   border-radius: 10px;
   background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #dc2626;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.add-ing-remove:active {
+  background: rgba(220, 38, 38, 0.25);
+}
+
+.add-ing-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.add-ing-btn:active {
+  background: rgba(255, 107, 26, 0.12);
+}
