@@ -1261,3 +1261,13 @@ body.chat-open .tabbar {
 .add-ing-btn:active {
   background: rgba(255, 107, 26, 0.12);
 }
+
+/* Жёсткая страховка: скрытая модалка точно скрыта */
+.modal.hidden {
+  display: none !important;
+}
+
+/* И модалка добавления блюда тоже */
+#add-dish-modal.hidden {
+  display: none !important;
+}
