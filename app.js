@@ -377,6 +377,12 @@ window.onLoginSuccess = async function() {
   updateFabVisibility('inventory');
   startAutoSync();
 
+// Показываем имя пользователя в шапке
+  const nameEl = document.getElementById('user-name-display');
+  if (nameEl && currentUser) {
+    nameEl.textContent = currentUser.name;
+  }
+
   if (typeof initTechcards === 'function') {
     initTechcards();
   }
