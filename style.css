@@ -1710,3 +1710,148 @@ nav.tabbar .tab-btn.active svg {
   background: transparent !important;
   position: static !important;
 }
+
+/* ============================================
+   СКЛАД — свайп по карточке
+   ============================================ */
+
+/* Обёртка карточки — контейнер для свайпа */
+.ingredient-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0;
+  display: block;
+  /* Убираем старый display flex — теперь внутри две части */
+}
+
+/* Внутренняя обёртка с содержимым карточки */
+.ingredient-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card);
+  border-radius: 16px;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.ingredient-card.dirty .ingredient-card-inner {
+  background: rgba(255, 107, 26, 0.04);
+}
+
+/* Блок кнопок справа (скрыт, появляется при свайпе) */
+.ingredient-swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  z-index: 1;
+}
+
+.ingredient-swipe-actions .swipe-btn {
+  width: 84px;
+  height: 100%;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #fff;
+  padding: 0;
+}
+
+.ingredient-swipe-actions .swipe-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.swipe-btn-edit {
+  background: #6b7280;
+}
+.swipe-btn-edit:active {
+  background: #4b5563;
+}
+
+.swipe-btn-delete {
+  background: #dc2626;
+  border-radius: 0 16px 16px 0;
+}
+.swipe-btn-delete:active {
+  background: #b91c1c;
+}
+
+/* Карточка в "свайпнутом" состоянии */
+.ingredient-card.swiped .ingredient-card-inner {
+  transform: translateX(-168px); /* 84px + 84px */
+}
+
+/* ============================================
+   МОДАЛКА УДАЛЕНИЯ
+   ============================================ */
+
+.delete-sheet {
+  text-align: center;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+.delete-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin: 4px 0 12px;
+  filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.5));
+}
+
+.delete-title {
+  font-size: 19px !important;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px !important;
+}
+
+.delete-text {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.delete-sheet .modal-actions {
+  margin-top: 8px !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  position: static !important;
+}
+
+.btn-danger {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
+}
+.btn-danger:active {
+  transform: scale(0.97);
+}
