@@ -572,3 +572,115 @@ body {
 
 .content::-webkit-scrollbar { display: none; }
 .content { scrollbar-width: none; }
+
+/* ============================================
+   ТТК — список блюд и карточка
+   ============================================ */
+
+.dishes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ttk-category {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 20px 0 4px;
+}
+.ttk-category:first-child { margin-top: 0; }
+
+.dish-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.dish-card:active {
+  background: rgba(255, 107, 26, 0.1);
+  border-color: rgba(255, 107, 26, 0.3);
+}
+
+.dish-info { flex: 1; min-width: 0; }
+.dish-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--text);
+}
+.dish-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dish-arrow {
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* Карточка блюда */
+.dish-view-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.dish-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dish-back-btn svg { width: 20px; height: 20px; }
+.dish-back-btn:active { background: rgba(255, 107, 26, 0.15); }
+
+.dish-view-header .section-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.dish-ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dish-ingredient {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.dish-ingredient-name {
+  font-size: 15px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+.dish-ingredient-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--orange);
+  white-space: nowrap;
+}
