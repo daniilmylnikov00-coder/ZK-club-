@@ -5,6 +5,31 @@ const { createClient } = supabase;
 window.db = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
 // ============================================
+//  ГЛОБАЛЬНЫЙ ФЛАГ — пользователь вводит текст
+// ============================================
+window.isUserTyping = false;
+
+document.addEventListener('focusin', (e) => {
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) {
+    window.isUserTyping = true;
+  }
+});
+
+document.addEventListener('focusout', (e) => {
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) {
+    // Небольшая задержка — чтобы изменение успело сохраниться
+    setTimeout(() => {
+      const active = document.activeElement;
+      if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'SELECT' && active.tagName !== 'TEXTAREA')) {
+        window.isUserTyping = false;
+      }
+    }, 200);
+  }
+});
+
+// ============================================
 //  СОСТОЯНИЕ
 // ============================================
 let ingredients = [];
@@ -25,6 +50,9 @@ const modal    = document.getElementById('modal');
 //  ЗАГРУЗКА ИЗ SUPABASE
 // ============================================
 async function loadFromServer() {
+  // Если пользователь что-то вводит — вообще не загружаем
+  if (window.isUserTyping) return;
+
   try {
     const { data, error } = await window.db
       .from('ingredients')
@@ -64,7 +92,6 @@ async function saveIngredient(item) {
   if (error) console.error('Ошибка сохранения:', error);
 }
 
-// Обновление одного поля
 async function updateIngredientField(id, field, value) {
   const update = { updated_at: new Date().toISOString() };
   update[field] = value;
@@ -103,13 +130,8 @@ function escapeHtml(str) {
 
 function render() {
   if (isRendering) return;
-
-  // Если поле в фокусе (пользователь что-то вводит) — не перерисовываем,
-  // иначе клавиатура закроется и ввод пропадёт
-  const active = document.activeElement;
-  if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
-    return;
-  }
+  // Если пользователь вводит — не трогаем список
+  if (window.isUserTyping) return;
 
   isRendering = true;
 
@@ -321,9 +343,12 @@ document.getElementById('modal-save')?.addEventListener('click', async () => {
   }
 
   await saveIngredient(item);
-  render();
   modal.classList.add('hidden');
   editingId = null;
+
+  // После закрытия модалки — принудительно перерисуем
+  window.isUserTyping = false;
+  render();
 });
 
 modal?.addEventListener('click', e => {
@@ -385,7 +410,6 @@ window.onLoginSuccess = async function() {
   updateFabVisibility('inventory');
   startAutoSync();
 
-  // Показываем имя пользователя в шапке
   const nameEl = document.getElementById('user-name-display');
   if (nameEl && currentUser) {
     nameEl.textContent = currentUser.name;
