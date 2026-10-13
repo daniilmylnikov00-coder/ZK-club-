@@ -69,6 +69,10 @@ function openChannel(channel) {
     document.getElementById('chat-messages-view').classList.remove('hidden');
     document.getElementById('chat-view-title').textContent = 'Общение поваров';
 
+    // Фуллскрин-режим (как в Telegram)
+    document.getElementById('tab-comments').classList.add('chat-open');
+    document.body.classList.add('chat-open');
+
     loadMessages();
     startChatSync();
   } else {
@@ -83,7 +87,9 @@ function closeChannel() {
   document.getElementById('chat-messages-view').classList.add('hidden');
   document.getElementById('chat-channels-view').classList.remove('hidden');
 
-  document.body.classList.remove('keyboard-open');
+  // Выходим из фуллскрин-режима
+  document.getElementById('tab-comments').classList.remove('chat-open');
+  document.body.classList.remove('chat-open');
 
   chatMessages = [];
   lastRenderedId = null;
@@ -276,42 +282,6 @@ function initChat() {
       if (currentChannel === 'chat') {
         loadMessages();
       }
-    });
-  }
-
-  // ============ КЛАВИАТУРА ============
-
-  // Основной способ — visualViewport
-  if (window.visualViewport && !window.visualViewport.dataset.bound) {
-    window.visualViewport.dataset.bound = '1';
-
-    const handleKeyboard = () => {
-      const vv = window.visualViewport;
-      const isKeyboard = window.innerHeight - vv.height > 100;
-      document.body.classList.toggle('keyboard-open', isKeyboard);
-    };
-
-    window.visualViewport.addEventListener('resize', handleKeyboard);
-    window.visualViewport.addEventListener('scroll', handleKeyboard);
-  }
-
-  // Резервный способ — фокус/блюр поля ввода
-  const chatInput = document.getElementById('chat-input');
-  if (chatInput && !chatInput.dataset.focusBound) {
-    chatInput.dataset.focusBound = '1';
-
-    chatInput.addEventListener('focus', () => {
-      setTimeout(() => {
-        if (!document.body.classList.contains('keyboard-open')) {
-          document.body.classList.add('keyboard-open');
-        }
-      }, 300);
-    });
-
-    chatInput.addEventListener('blur', () => {
-      setTimeout(() => {
-        document.body.classList.remove('keyboard-open');
-      }, 100);
     });
   }
 }
