@@ -1153,3 +1153,111 @@ body.chat-open .tabbar {
 .dish-back-btn:active {
   background: rgba(255, 107, 26, 0.15);
 }
+
+/* ============================================
+   ТТК — кнопка «Добавить» и модалка
+   ============================================ */
+
+.ttk-add-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 14px;
+  background: rgba(255, 107, 26, 0.12);
+  border: 1.5px dashed rgba(255, 107, 26, 0.5);
+  color: var(--orange);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ttk-add-btn:active {
+  background: rgba(255, 107, 26, 0.2);
+  border-color: rgba(255, 107, 26, 0.7);
+}
+
+/* Форма добавления ингредиентов */
+.add-ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.add-ing-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.add-ing-row .add-ing-name {
+  flex: 1.2;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+}
+
+.add-ing-row .add-ing-amount {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+}
+
+.add-ing-row input:focus {
+  border-color: rgba(255, 107, 26, 0.5);
+}
+
+.add-ing-remove {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #dc2626;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.add-ing-remove:active {
+  background: rgba(220, 38, 38, 0.25);
+}
+
+.add-ing-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.add-ing-btn:active {
+  background: rgba(255, 107, 26, 0.12);
+}
