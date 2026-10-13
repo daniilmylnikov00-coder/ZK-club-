@@ -982,12 +982,13 @@ html {
 
 .chat-bubble {
   max-width: 78%;
+  min-width: 90px;   /* ← ЭТА */
   padding: 10px 14px;
   border-radius: 18px;
   background: var(--card);
   border: 1px solid var(--border);
-  word-wrap: break-word;
 }
+
 .chat-msg.mine .chat-bubble {
   background: var(--orange);
   border-color: var(--orange);
