@@ -1,5 +1,5 @@
 // ============================================
-//  ЧАТ — раздел «Чат»
+//  ЧАТ — с поддержкой фото
 // ============================================
 
 let chatMessages = [];
@@ -7,7 +7,11 @@ let chatLoaded = false;
 let chatTimer = null;
 let currentChannel = null;
 let lastRenderedId = null;
+let isUploading = false;
 
+// ============================================
+//  СПИСОК КАНАЛОВ
+// ============================================
 function renderChannels() {
   const listEl = document.getElementById('channels-list');
   if (!listEl) return;
@@ -48,12 +52,13 @@ function renderChannels() {
   `;
 
   listEl.querySelectorAll('.channel-card').forEach(card => {
-    card.addEventListener('click', () => {
-      openChannel(card.dataset.channel);
-    });
+    card.addEventListener('click', () => openChannel(card.dataset.channel));
   });
 }
 
+// ============================================
+//  ОТКРЫТИЕ / ЗАКРЫТИЕ КАНАЛА
+// ============================================
 function openChannel(channel) {
   currentChannel = channel;
 
@@ -86,6 +91,9 @@ function closeChannel() {
   lastRenderedId = null;
 }
 
+// ============================================
+//  ЗАГРУЗКА СООБЩЕНИЙ
+// ============================================
 async function loadMessages() {
   if (!currentChannel) return;
 
@@ -122,6 +130,9 @@ async function loadMessages() {
   }
 }
 
+// ============================================
+//  ОТРИСОВКА СООБЩЕНИЙ
+// ============================================
 function escapeHtmlChat(str) {
   const div = document.createElement('div');
   div.textContent = str || '';
@@ -149,11 +160,15 @@ function renderMessages() {
 
   listEl.innerHTML = chatMessages.map(m => {
     const isMine = m.author_name === myName;
+    const hasText = m.text && m.text.trim();
+    const hasImage = m.image_url;
+
     return `
       <div class="chat-msg ${isMine ? 'mine' : 'theirs'}">
         <div class="chat-bubble">
           ${!isMine ? `<div class="chat-author">${escapeHtmlChat(m.author_name)}</div>` : ''}
-          <div class="chat-text">${escapeHtmlChat(m.text)}</div>
+          ${hasImage ? `<img src="${m.image_url}" class="chat-photo" alt="" loading="lazy">` : ''}
+          ${hasText ? `<div class="chat-text">${escapeHtmlChat(m.text)}</div>` : ''}
           <div class="chat-time">${formatTime(m.created_at)}</div>
         </div>
       </div>
@@ -165,6 +180,9 @@ function renderMessages() {
   }, 50);
 }
 
+// ============================================
+//  ОТПРАВКА ТЕКСТА
+// ============================================
 async function sendMessage() {
   const input = document.getElementById('chat-input');
   if (!input) return;
@@ -212,6 +230,190 @@ async function sendMessage() {
   }
 }
 
+// ============================================
+//  ФОТО — выбор источника
+// ============================================
+function openPhotoSource() {
+  let modal = document.getElementById('photo-source-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'photo-source-modal';
+    modal.className = 'photo-source';
+    modal.innerHTML = `
+      <div class="photo-source-sheet">
+        <div class="photo-source-handle"></div>
+        <h3>Добавить фото</h3>
+        <button class="photo-source-btn" data-source="camera">
+          <span class="emoji">📷</span> Снять на камеру
+        </button>
+        <button class="photo-source-btn" data-source="gallery">
+          <span class="emoji">🖼</span> Выбрать из галереи
+        </button>
+        <button class="photo-source-cancel" data-source="cancel">Отмена</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-source]');
+      if (!btn) {
+        if (e.target === modal) modal.classList.add('hidden');
+        return;
+      }
+
+      const source = btn.dataset.source;
+      modal.classList.add('hidden');
+
+      if (source === 'camera' || source === 'gallery') {
+        const fileInput = document.getElementById('chat-photo-input');
+        if (source === 'camera') {
+          fileInput.setAttribute('capture', 'environment');
+        } else {
+          fileInput.removeAttribute('capture');
+        }
+        fileInput.click();
+      }
+    });
+  }
+
+  modal.classList.remove('hidden');
+}
+
+// ============================================
+//  ФОТО — обработка выбора файла
+// ============================================
+async function handlePhotoSelected(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  e.target.value = '';
+
+  if (isUploading) return;
+  isUploading = true;
+
+  const me = getCurrentUser();
+  if (!me) { isUploading = false; return; }
+
+  // Показать превью «загружается»
+  const tempMsg = {
+    id: 'temp-' + Date.now(),
+    channel: currentChannel,
+    author_name: me.name,
+    text: 'Загрузка фото...',
+    created_at: new Date().toISOString()
+  };
+  chatMessages.push(tempMsg);
+  renderMessages();
+
+  try {
+    // 1. Сжимаем фото
+    const compressed = await compressImage(file, 1280, 0.8);
+
+    // 2. Загружаем в Supabase Storage
+    const ext = 'jpg';
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const filePath = `${currentChannel}/${fileName}`;
+
+    const { error: uploadError } = await window.db.storage
+      .from('chat-photos')
+      .upload(filePath, compressed, {
+        contentType: 'image/jpeg',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Ошибка загрузки фото:', uploadError);
+      chatMessages = chatMessages.filter(m => m.id !== tempMsg.id);
+      renderMessages();
+      alert('Не удалось загрузить фото');
+      isUploading = false;
+      return;
+    }
+
+    // 3. Получаем публичный URL
+    const { data: urlData } = window.db.storage
+      .from('chat-photos')
+      .getPublicUrl(filePath);
+
+    const imageUrl = urlData.publicUrl;
+
+    // 4. Сохраняем сообщение в БД
+    const { error: dbError } = await window.db
+      .from('messages')
+      .insert({
+        channel: currentChannel,
+        author_id: me.id,
+        author_name: me.name,
+        text: '',
+        image_url: imageUrl
+      });
+
+    if (dbError) {
+      console.error('Ошибка сохранения:', dbError);
+      chatMessages = chatMessages.filter(m => m.id !== tempMsg.id);
+      renderMessages();
+      alert('Не удалось сохранить фото');
+      isUploading = false;
+      return;
+    }
+
+    // 5. Убираем временное сообщение, перезагружаем
+    chatMessages = chatMessages.filter(m => m.id !== tempMsg.id);
+    lastRenderedId = null;
+    await loadMessages();
+
+  } catch (err) {
+    console.error('Ошибка:', err);
+    chatMessages = chatMessages.filter(m => m.id !== tempMsg.id);
+    renderMessages();
+    alert('Ошибка при загрузке фото');
+  } finally {
+    isUploading = false;
+  }
+}
+
+// ============================================
+//  СЖАТИЕ ФОТО
+// ============================================
+function compressImage(file, maxSize, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+
+        // Уменьшаем до maxSize по большей стороне
+        if (width > height && width > maxSize) {
+          height = Math.round(height * maxSize / width);
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = Math.round(width * maxSize / height);
+          height = maxSize;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Не удалось сжать'));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ============================================
+//  СИНХРОНИЗАЦИЯ
+// ============================================
 function startChatSync() {
   stopChatSync();
   chatTimer = setInterval(loadMessages, 3000);
@@ -224,6 +426,9 @@ function stopChatSync() {
   }
 }
 
+// ============================================
+//  ИНИЦИАЛИЗАЦИЯ
+// ============================================
 function initChat() {
   renderChannels();
 
@@ -239,6 +444,18 @@ function initChat() {
     sendBtn.addEventListener('click', sendMessage);
   }
 
+  const photoBtn = document.getElementById('chat-photo-btn');
+  if (photoBtn && !photoBtn.dataset.bound) {
+    photoBtn.dataset.bound = '1';
+    photoBtn.addEventListener('click', openPhotoSource);
+  }
+
+  const photoInput = document.getElementById('chat-photo-input');
+  if (photoInput && !photoInput.dataset.bound) {
+    photoInput.dataset.bound = '1';
+    photoInput.addEventListener('change', handlePhotoSelected);
+  }
+
   const input = document.getElementById('chat-input');
   if (input && !input.dataset.bound) {
     input.dataset.bound = '1';
@@ -249,7 +466,6 @@ function initChat() {
       }
     });
 
-    // При фокусе прокручиваем чат вниз — чтобы поле ввода было над клавиатурой
     input.addEventListener('focus', () => {
       setTimeout(() => {
         const list = document.getElementById('chat-messages-list');
