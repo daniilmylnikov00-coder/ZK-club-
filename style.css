@@ -968,7 +968,7 @@ px.channel-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px 0 80px;
+  padding: 12px 0 170px;
   min-height: 200px;
 }
 
