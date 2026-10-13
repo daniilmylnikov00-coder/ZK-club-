@@ -1,4 +1,21 @@
 // ============================================
+//  ФИКС ВЫСОТЫ ЭКРАНА (iOS PWA — убирает щель снизу)
+// ============================================
+function setRealHeight() {
+  const h = window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', h + 'px');
+  document.body.style.height = h + 'px';
+}
+
+window.addEventListener('resize', setRealHeight);
+window.addEventListener('orientationchange', setRealHeight);
+window.addEventListener('load', setRealHeight);
+setTimeout(setRealHeight, 50);
+setTimeout(setRealHeight, 300);
+setTimeout(setRealHeight, 1000);
+setRealHeight();
+
+// ============================================
 //  ПОДКЛЮЧЕНИЕ К SUPABASE
 // ============================================
 const { createClient } = supabase;
@@ -377,7 +394,7 @@ window.onLoginSuccess = async function() {
   updateFabVisibility('inventory');
   startAutoSync();
 
-// Показываем имя пользователя в шапке
+  // Показываем имя пользователя в шапке
   const nameEl = document.getElementById('user-name-display');
   if (nameEl && currentUser) {
     nameEl.textContent = currentUser.name;
