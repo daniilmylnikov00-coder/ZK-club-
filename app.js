@@ -810,6 +810,7 @@ window.onLoginSuccess = async function() {
   if (typeof initTechcards === 'function') initTechcards();
   if (typeof initChat === 'function') initChat();
   if (typeof initShift === 'function') initShift();
+  if (typeof initCooking === 'function') initCooking();
 };
 
 // ============================================
