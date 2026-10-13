@@ -218,6 +218,21 @@
         </div>
       </div>
     </div>
+    
+    <!-- МОДАЛКА: несохранённые изменения -->
+    <div id="unsaved-modal" class="modal hidden">
+      <div class="modal-sheet unsaved-sheet">
+        <div class="modal-handle"></div>
+        <div class="unsaved-icon">⚠️</div>
+        <h2 class="unsaved-title">Несохранённые изменения</h2>
+        <p class="unsaved-text">Если вы уйдёте сейчас, введённые данные не сохранятся.</p>
+
+        <div class="modal-actions">
+          <button id="unsaved-cancel" class="btn-secondary">Не сохранять</button>
+          <button id="unsaved-save" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
 
     <nav class="tabbar">
       <button class="tab-btn active" data-tab="inventory">
