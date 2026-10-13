@@ -127,9 +127,10 @@
         </div>
       </section>
 
-    <section class="tab-view" id="tab-shift">
+      <section class="tab-view" id="tab-shift">
         <div id="shift-root"></div>
       </section>
+    </main>
 
     <button id="add-btn" class="fab" aria-label="Добавить ингредиент">
       <svg viewBox="0 0 24 24" fill="none">
@@ -194,6 +195,23 @@
         <div class="modal-actions">
           <button id="add-dish-cancel" class="btn-secondary">Отмена</button>
           <button id="add-dish-save" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- МОДАЛКА РЕДАКТИРОВАНИЯ СМЕНЫ -->
+    <div id="shift-edit-modal" class="modal hidden">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h2 id="shift-edit-title">Изменить день</h2>
+        <p id="shift-edit-sub" style="color:var(--muted);font-size:13px;margin-bottom:16px;margin-top:-8px;"></p>
+
+        <button id="shift-edit-work" class="shift-edit-btn work">🟢 Сделать рабочим</button>
+        <button id="shift-edit-off" class="shift-edit-btn off">⚪ Сделать выходным</button>
+        <button id="shift-edit-reset" class="shift-edit-btn reset">↺ Сбросить к графику</button>
+
+        <div class="modal-actions">
+          <button id="shift-edit-cancel" class="btn-secondary">Отмена</button>
         </div>
       </div>
     </div>
