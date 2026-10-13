@@ -1271,3 +1271,5 @@ body.chat-open .tabbar {
 #add-dish-modal.hidden {
   display: none !important;
 }
+
+<div id="add-dish-modal" class="modal hidden">
