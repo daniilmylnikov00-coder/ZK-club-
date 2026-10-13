@@ -1118,3 +1118,38 @@ body.chat-open .tabbar {
 .dish-back-btn:active {
   background: rgba(255, 107, 26, 0.15);
 }
+
+/* Стрелка «Назад» в чате */
+.chat-view-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dish-back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.dish-back-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+
+.dish-back-btn:active {
+  background: rgba(255, 107, 26, 0.15);
+}
