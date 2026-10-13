@@ -80,12 +80,26 @@
         </div>
       </section>
 
-      <section class="tab-view" id="tab-techcards">
-        <h1 class="section-title">ТТК</h1>
-        <p class="section-sub">Технологические карты</p>
-        <div class="placeholder">
-          <div class="placeholder-icon">📋</div>
-          <div class="placeholder-text">Раздел в разработке</div>
+    <section class="tab-view" id="tab-techcards">
+        <!-- Список блюд -->
+        <div id="techcards-list-view">
+          <h1 class="section-title">ТТК</h1>
+          <p class="section-sub">Технологические карты</p>
+          <div id="dishes-list" class="dishes-list"></div>
+        </div>
+
+        <!-- Карточка блюда -->
+        <div id="techcards-dish-view" class="hidden">
+          <div class="dish-view-header">
+            <button id="dish-back-btn" class="dish-back-btn">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <h1 class="section-title" id="dish-view-title">Блюдо</h1>
+          </div>
+          <p class="section-sub">Ингредиенты и граммовка</p>
+          <div id="dish-view-ingredients" class="dish-ingredients-list"></div>
         </div>
       </section>
 
